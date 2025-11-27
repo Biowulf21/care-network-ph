@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Clinic;
 use App\Models\MedicalRecord;
 use App\Models\Patient;
 use App\Models\User;

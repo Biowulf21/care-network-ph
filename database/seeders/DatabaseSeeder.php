@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             UsersSeeder::class,
             PatientsSeeder::class,
             MedicalRecordsSeeder::class,
+            AppointmentSeeder::class,
         ]);
 
         // Example test user (optional)

@@ -2,11 +2,11 @@
 
 namespace App\Http\Livewire\Dashboard;
 
-use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Clinic;
-use App\Models\Patient;
 use App\Models\MedicalRecord;
+use App\Models\Patient;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class Admin extends Component
 {

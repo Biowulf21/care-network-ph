@@ -2,12 +2,11 @@
 
 namespace App\Http\Livewire\Patients;
 
-use Livewire\Component;
-use Livewire\WithPagination;
 use App\Models\Patient;
 use Illuminate\Support\Facades\Auth;
-
 use Illuminate\Support\Facades\Gate;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class Index extends Component
 {
@@ -23,7 +22,7 @@ class Index extends Component
         $query = Patient::query();
 
         if ($user->hasRole('admin')) {
-            $query->whereHas('clinic', fn($q) => $q->where('organization_id', $user->organization_id));
+            $query->whereHas('clinic', fn ($q) => $q->where('organization_id', $user->organization_id));
         }
 
         if ($user->hasRole('delegate')) {
@@ -31,7 +30,7 @@ class Index extends Component
         }
 
         if ($this->search) {
-            $query->where(fn($q) => $q->where('first_name', 'like', "%{$this->search}%")->orWhere('last_name', 'like', "%{$this->search}%"));
+            $query->where(fn ($q) => $q->where('first_name', 'like', "%{$this->search}%")->orWhere('last_name', 'like', "%{$this->search}%"));
         }
 
         return view('livewire.patients.index', ['patients' => $query->paginate(15)]);
@@ -43,6 +42,7 @@ class Index extends Component
 
         if (Gate::denies('delete', $patient)) {
             $this->dispatchBrowserEvent('notify', ['type' => 'error', 'message' => 'Not authorized']);
+
             return;
         }
 

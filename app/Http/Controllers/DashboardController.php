@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 class DashboardController extends Controller
 {
     public function index()
@@ -18,6 +16,10 @@ class DashboardController extends Controller
             return redirect()->route('dashboard.admin');
         }
 
+        if ($user->hasRole('delegate')) {
+            return redirect()->route('dashboard.delegate');
+        }
+
         // default: show simple dashboard view
         return view('dashboard');
     }
@@ -30,5 +32,10 @@ class DashboardController extends Controller
     public function admin()
     {
         return view('dashboard.admin');
+    }
+
+    public function delegate()
+    {
+        return view('dashboard.delegate');
     }
 }

@@ -1,48 +1,190 @@
-<div class="p-4 max-w-3xl">
-    <form wire:submit.prevent="save">
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm">Patient</label>
-                <select wire:model="state.patient_id" class="border p-2 w-full">
-                    <option value="">-- Select Patient --</option>
-                    @foreach($patients as $p)
-                        <option value="{{ $p->id }}">{{ $p->first_name }} {{ $p->last_name }}</option>
-                    @endforeach
-                </select>
-            </div>
+<div class="p-6 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $record ? 'Edit Medical Record' : 'New Medical Record' }}</h1>
+        <a href="{{ route('medical-records.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">Back to Records</a>
+    </div>
 
-            <div>
-                <label class="block text-sm">Clinic</label>
-                <select wire:model="state.clinic_id" class="border p-2 w-full">
-                    <option value="">-- Select Clinic --</option>
-                    @foreach($clinics as $c)
-                        <option value="{{ $c->id }}">{{ $c->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+    @if (session()->has('message'))
+        <div class="mb-6 p-4 bg-green-100 border border-green-200 text-green-700 rounded-lg">
+            {{ session('message') }}
+        </div>
+    @endif
 
-            <div>
-                <label class="block text-sm">Consultation Date</label>
-                <input type="date" wire:model="state.consultation_date" class="border p-2 w-full" />
-            </div>
-
-            <div>
-                <label class="block text-sm">PhilHealth Claim</label>
-                <input wire:model="state.philhealth_number" placeholder="PhilHealth #" class="border p-2 w-full" />
-            </div>
-
-            <div class="col-span-2">
-                <label class="block text-sm">Doctor Notes</label>
-                <textarea wire:model="state.doctor_notes" class="border p-2 w-full h-32"></textarea>
+    <form wire:submit.prevent="save" class="space-y-8">
+        <!-- Patient Selection and Basic Info -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Patient Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="patient_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Patient *</label>
+                    <select wire:model="state.patient_id" id="patient_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
+                        <option value="">Select Patient</option>
+                        @foreach($patients as $patient)
+                            <option value="{{ $patient->id }}">{{ $patient->full_name }} ({{ $patient->patient_id }})</option>
+                        @endforeach
+                    </select>
+                    @error('state.patient_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label for="clinic_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Clinic *</label>
+                    <select wire:model="state.clinic_id" id="clinic_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
+                        <option value="">Select Clinic</option>
+                        @foreach($clinics as $clinic)
+                            <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('state.clinic_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label for="consultation_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Consultation Date *</label>
+                    <input type="date" wire:model="state.consultation_date" id="consultation_date" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
+                    @error('state.consultation_date') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label for="encounter_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Encounter Type</label>
+                    <select wire:model="state.encounter_type" id="encounter_type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                        <option value="General Consultation">General Consultation</option>
+                        <option value="Follow-up Visit">Follow-up Visit</option>
+                        <option value="Emergency Visit">Emergency Visit</option>
+                        <option value="Routine Check-up">Routine Check-up</option>
+                        <option value="Vaccination">Vaccination</option>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div class="mt-4 flex gap-2">
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
-            <a href="{{ route('medical-records.index') }}" class="px-4 py-2 bg-zinc-200 rounded">Back</a>
+        <!-- Chief Complaint and History -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Clinical Assessment</h2>
+            <div class="space-y-6">
+                <div>
+                    <label for="chief_complaint" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Chief Complaint</label>
+                    <input type="text" wire:model="state.chief_complaint" id="chief_complaint" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="e.g., FEVER RASHES COUGH COLD">
+                </div>
+                <div>
+                    <label for="history_present_illness" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">History of Present Illness</label>
+                    <textarea wire:model="state.history_present_illness" id="history_present_illness" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Detailed description of current illness"></textarea>
+                </div>
+                <div>
+                    <label for="physical_examination" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Physical Examination</label>
+                    <textarea wire:model="state.physical_examination" id="physical_examination" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Physical examination findings"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vital Signs -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Vital Signs</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div>
+                    <label for="bp" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Blood Pressure</label>
+                    <input type="text" wire:model="state.vital_signs.blood_pressure" id="bp" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="120/80">
+                </div>
+                <div>
+                    <label for="hr" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Heart Rate (bpm)</label>
+                    <input type="number" wire:model="state.vital_signs.heart_rate" id="hr" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="72">
+                </div>
+                <div>
+                    <label for="temp" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Temperature (°C)</label>
+                    <input type="number" step="0.1" wire:model="state.vital_signs.temperature" id="temp" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="37.0">
+                </div>
+                <div>
+                    <label for="weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Weight (kg)</label>
+                    <input type="number" step="0.1" wire:model="state.vital_signs.weight" id="weight" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="70.0">
+                </div>
+                <div>
+                    <label for="height" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Height (cm)</label>
+                    <input type="number" wire:model="state.vital_signs.height" id="height" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="170">
+                </div>
+                <div>
+                    <label for="o2_sat" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">O2 Saturation (%)</label>
+                    <input type="number" wire:model="state.vital_signs.oxygen_saturation" id="o2_sat" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="98">
+                </div>
+                <div>
+                    <label for="rr" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Respiratory Rate</label>
+                    <input type="number" wire:model="state.vital_signs.respiratory_rate" id="rr" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="16">
+                </div>
+                <div>
+                    <label for="bmi" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">BMI</label>
+                    <input type="number" step="0.1" wire:model="state.vital_signs.bmi" id="bmi" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="24.2">
+                </div>
+            </div>
+        </div>
+
+        <!-- Diagnosis and Treatment -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Diagnosis & Treatment</h2>
+            <div class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="diagnosis" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primary Diagnosis</label>
+                        <textarea wire:model="state.diagnosis" id="diagnosis" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="e.g., Acute Upper Respiratory Tract Infection"></textarea>
+                    </div>
+                    <div>
+                        <label for="diagnosis_codes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ICD-10 Code</label>
+                        <input type="text" wire:model="state.diagnosis_codes" id="diagnosis_codes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="J06.9">
+                    </div>
+                </div>
+                <div>
+                    <label for="assessment_plan" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Assessment & Plan</label>
+                    <textarea wire:model="state.assessment_plan" id="assessment_plan" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Assessment and treatment plan"></textarea>
+                </div>
+                <div>
+                    <label for="treatment_plan" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Treatment Plan</label>
+                    <textarea wire:model="state.treatment_plan" id="treatment_plan" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Detailed treatment plan"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="disposition" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Disposition</label>
+                        <select wire:model="state.disposition" id="disposition" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            <option value="">Select disposition</option>
+                            <option value="Sent Home">Sent Home</option>
+                            <option value="Referred to specialist">Referred to specialist</option>
+                            <option value="Follow-up required">Follow-up required</option>
+                            <option value="Admitted for observation">Admitted for observation</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="next_appointment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Next Appointment</label>
+                        <input type="date" wire:model="state.next_appointment" id="next_appointment" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clinical Notes -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Clinical Notes</h2>
+            <div class="space-y-6">
+                <div>
+                    <label for="doctor_notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Provider Notes</label>
+                    <textarea wire:model="state.doctor_notes" id="doctor_notes" rows="4" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Additional clinical notes and observations"></textarea>
+                </div>
+                <div>
+                    <label for="provider_notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Additional Notes</label>
+                    <textarea wire:model="state.provider_notes" id="provider_notes" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Additional notes, follow-up instructions, etc."></textarea>
+                </div>
+                <div>
+                    <label for="philhealth_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">PhilHealth Number</label>
+                    <input wire:model="state.philhealth_number" id="philhealth_number" placeholder="PhilHealth #" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-4">
+            <a href="{{ route('medical-records.index') }}" class="px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors">
+                Cancel
+            </a>
             @if($record)
-                <button type="button" onclick="if(!confirm('Delete this record?')) return false; Livewire.emit('deleteRecord', {{ $record->id }})" class="px-4 py-2 bg-red-600 text-white rounded">Delete</button>
+                <button type="button" wire:click="delete" onclick="if(!confirm('Delete this record?')) return false;" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
+                    Delete
+                </button>
             @endif
+            <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors" wire:loading.attr="disabled">
+                <span wire:loading.remove>{{ $record ? 'Update Record' : 'Create Record' }}</span>
+                <span wire:loading>Saving...</span>
+            </button>
         </div>
     </form>
 </div>

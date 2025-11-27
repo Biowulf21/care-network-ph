@@ -14,23 +14,39 @@
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+
+                    @auth
+                        @php $user = auth()->user(); @endphp
+
+                        @if($user->hasRole('superadmin'))
+                            <flux:navlist.item icon="users" :href="route('users.index')" :current="request()->routeIs('users*')" wire:navigate>{{ __('Users') }}</flux:navlist.item>
+                            <flux:navlist.item icon="building-office" :href="route('organizations.index')" :current="request()->routeIs('organizations*')" wire:navigate>{{ __('Organizations') }}</flux:navlist.item>
+                            <flux:navlist.item icon="map" :href="route('clinics.index')" :current="request()->routeIs('clinics*')" wire:navigate>{{ __('Clinics') }}</flux:navlist.item>
+                            <flux:navlist.item icon="calendar" :href="route('appointments.calendar')" :current="request()->routeIs('appointments*')" wire:navigate>{{ __('Appointments') }}</flux:navlist.item>
+                            <flux:navlist.item icon="chart-bar" :href="route('reports.analytics')" :current="request()->routeIs('reports*')" wire:navigate>{{ __('Reports') }}</flux:navlist.item>
+                        @elseif($user->hasRole('admin'))
+                            <flux:navlist.item icon="building-office" :href="route('organizations.index')" :current="request()->routeIs('organizations*')" wire:navigate>{{ __('Organization') }}</flux:navlist.item>
+                            <flux:navlist.item icon="map" :href="route('clinics.index')" :current="request()->routeIs('clinics*')" wire:navigate>{{ __('Clinics') }}</flux:navlist.item>
+                            <flux:navlist.item icon="users" :href="route('patients.index')" :current="request()->routeIs('patients*')" wire:navigate>{{ __('Patients') }}</flux:navlist.item>
+                            <flux:navlist.item icon="calendar" :href="route('appointments.calendar')" :current="request()->routeIs('appointments*')" wire:navigate>{{ __('Appointments') }}</flux:navlist.item>
+                            <flux:navlist.item icon="chart-bar" :href="route('reports.analytics')" :current="request()->routeIs('reports*')" wire:navigate>{{ __('Reports') }}</flux:navlist.item>
+                            <flux:navlist.item icon="user-group" :href="route('users.index')" :current="request()->routeIs('users*')" wire:navigate>{{ __('Delegates') }}</flux:navlist.item>
+                        @elseif($user->hasRole('delegate'))
+                            <flux:navlist.item icon="users" :href="route('patients.index')" :current="request()->routeIs('patients*')" wire:navigate>{{ __('Patients') }}</flux:navlist.item>
+                            <flux:navlist.item icon="calendar" :href="route('appointments.calendar')" :current="request()->routeIs('appointments*')" wire:navigate>{{ __('Appointments') }}</flux:navlist.item>
+                            <flux:navlist.item icon="document-text" :href="route('medical-records.index')" :current="request()->routeIs('medical-records*')" wire:navigate>{{ __('Medical Records') }}</flux:navlist.item>
+                            <flux:navlist.item icon="chart-bar" :href="route('reports.analytics')" :current="request()->routeIs('reports*')" wire:navigate>{{ __('Reports') }}</flux:navlist.item>
+                        @else
+                            <flux:navlist.item icon="users" :href="route('patients.index')" :current="request()->routeIs('patients*')" wire:navigate>{{ __('Patients') }}</flux:navlist.item>
+                            <flux:navlist.item icon="calendar" :href="route('appointments.calendar')" :current="request()->routeIs('appointments*')" wire:navigate>{{ __('Appointments') }}</flux:navlist.item>
+                        @endif
+
+                    @endauth
                 </flux:navlist.group>
             </flux:navlist>
-
             <flux:spacer />
-
-            <flux:navlist variant="outline">
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                {{ __('Repository') }}
-                </flux:navlist.item>
-
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                {{ __('Documentation') }}
-                </flux:navlist.item>
-            </flux:navlist>
-
             <!-- Desktop User Menu -->
-            <flux:dropdown class="hidden lg:block" position="bottom" align="start">
+            <flux:dropdown class="lg:block" position="bottom" align="start">
                 <flux:profile
                     :name="auth()->user()->name"
                     :initials="auth()->user()->initials()"

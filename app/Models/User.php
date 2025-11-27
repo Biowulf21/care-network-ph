@@ -8,8 +8,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use App\Models\Role;
-
 
 class User extends Authenticatable
 {
@@ -25,6 +23,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'organization_id',
+        'clinic_id',
     ];
 
     /**
@@ -67,6 +67,16 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class);
+    }
+
+    public function clinic()
+    {
+        return $this->belongsTo(Clinic::class);
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
     }
 
     public function hasRole(string $role): bool

@@ -36,12 +36,34 @@ Route::middleware(['auth'])->group(function () {
     // EMAR & dashboards
     Route::get('/dashboard/superadmin', [\App\Http\Controllers\DashboardController::class, 'superadmin'])->name('dashboard.superadmin');
     Route::get('/dashboard/admin', [\App\Http\Controllers\DashboardController::class, 'admin'])->name('dashboard.admin');
+    Route::get('/dashboard/delegate', [\App\Http\Controllers\DashboardController::class, 'delegate'])->name('dashboard.delegate');
+
+    // Management pages
+    Route::get('/users', \App\Http\Livewire\Users\Index::class)->name('users.index');
+    Route::get('/users/create', \App\Livewire\Users\Form::class)->name('users.create');
+    Route::get('/users/{user}/edit', \App\Livewire\Users\Form::class)->name('users.edit');
+
+    Route::get('/organizations', \App\Http\Livewire\Organizations\Index::class)->name('organizations.index');
+    Route::get('/organizations/create', \App\Livewire\Organizations\Form::class)->name('organizations.create');
+    Route::get('/organizations/{organization}/edit', \App\Livewire\Organizations\Form::class)->name('organizations.edit');
+
+    Route::get('/clinics', \App\Http\Livewire\Clinics\Index::class)->name('clinics.index');
+    Route::get('/clinics/create', \App\Livewire\Clinics\Form::class)->name('clinics.create');
+    Route::get('/clinics/{clinic}/edit', \App\Livewire\Clinics\Form::class)->name('clinics.edit');
 
     // Livewire-powered lists
     Route::get('/patients', \App\Http\Livewire\Patients\Index::class)->name('patients.index');
     Route::get('/patients/create', \App\Http\Livewire\Patients\Form::class)->name('patients.create');
     Route::get('/patients/{patient}/edit', \App\Http\Livewire\Patients\Form::class)->name('patients.edit');
+    Route::get('/patients/{patient}', \App\Livewire\Patients\Profile::class)->name('patients.profile');
     Route::get('/medical-records', \App\Http\Livewire\MedicalRecords\Index::class)->name('medical-records.index');
     Route::get('/medical-records/create', \App\Http\Livewire\MedicalRecords\Form::class)->name('medical-records.create');
     Route::get('/medical-records/{record}/edit', \App\Http\Livewire\MedicalRecords\Form::class)->name('medical-records.edit');
+
+    // Appointment management
+    Route::get('/appointments', \App\Livewire\Appointments\Index::class)->name('appointments.index');
+    Route::get('/appointments/calendar', \App\Livewire\Appointments\Calendar::class)->name('appointments.calendar');
+
+    // Reports and analytics
+    Route::get('/reports', \App\Livewire\Reports\Analytics::class)->name('reports.analytics');
 });

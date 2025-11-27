@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,14 +17,33 @@ class Patient extends Model
         'last_name',
         'date_of_birth',
         'sex',
+        'gender',
         'philhealth_number',
+        'philhealth_id',
+        'patient_id',
         'address',
+        'city',
+        'province',
+        'region',
+        'zip_code',
         'phone',
+        'email',
+        'civil_status',
         'emergency_contact_name',
         'emergency_contact_phone',
+        'emergency_contact_relation',
+        'insurance_info',
+        'height',
+        'weight',
+        'blood_type',
     ];
 
-    protected $dates = ['date_of_birth'];
+    protected $casts = [
+        'date_of_birth' => 'date',
+        'insurance_info' => 'array',
+        'height' => 'decimal:2',
+        'weight' => 'decimal:2',
+    ];
 
     public function clinic()
     {
@@ -33,5 +53,36 @@ class Patient extends Model
     public function medicalRecords()
     {
         return $this->hasMany(MedicalRecord::class);
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    public function getFullNameAttribute()
+    {
+        return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");
+    }
+
+    public function getAgeAttribute()
+    {
+        return $this->date_of_birth ? Carbon::parse($this->date_of_birth)->age : null;
+    }
+
+    public function getBmiAttribute()
+    {
+        if ($this->height && $this->weight) {
+            $heightInMeters = $this->height / 100;
+
+            return round($this->weight / ($heightInMeters * $heightInMeters), 1);
+        }
+
+        return null;
+    }
+
+    public function getLatestVitalsAttribute()
+    {
+        return $this->medicalRecords()->whereNotNull('vitals')->latest()->first()?->vitals;
     }
 }

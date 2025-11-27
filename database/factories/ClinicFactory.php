@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Clinic;
+use App\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ClinicFactory extends Factory
@@ -12,8 +13,8 @@ class ClinicFactory extends Factory
     public function definition(): array
     {
         return [
-            'organization_id' => null, // set in seeder
-            'name' => $this->faker->company . ' Clinic',
+            'organization_id' => Organization::factory(),
+            'name' => $this->faker->company.' Clinic',
             'code' => strtoupper($this->faker->bothify('CLN###')),
             'address' => $this->faker->address,
             'phone' => $this->faker->phoneNumber,

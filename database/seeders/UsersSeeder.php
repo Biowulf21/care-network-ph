@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Clinic;
 use App\Models\Organization;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
+use App\Models\Clinic;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -32,21 +32,32 @@ class UsersSeeder extends Seeder
 
         // for each organization create an admin and a delegate
         Organization::all()->each(function (Organization $org) use ($adminRole, $delegateRole) {
-            $admin = User::create([
-                'name' => $org->name . ' Admin',
-                'email' => Str::slug($org->name) . '@example.com',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
-            ]);
+            $adminEmail = Str::slug($org->name).'@example.com';
+            $admin = User::firstOrCreate(
+                ['email' => $adminEmail],
+                [
+                    'name' => $org->name.' Admin',
+                    'password' => bcrypt('password'),
+                    'organization_id' => $org->id,
+                    'email_verified_at' => now(),
+                ]
+            );
             $admin->roles()->syncWithoutDetaching([$adminRole->id]);
 
-            // a couple delegates
-            $delegate1 = User::create([
-                'name' => $org->name . ' Delegate',
-                'email' => Str::slug($org->name) . '.delegate@example.com',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
-            ]);
+            // create a delegate and assign it to a random clinic within the organization
+            $delegateEmail = Str::slug($org->name).'.delegate@example.com';
+            $clinic = Clinic::where('organization_id', $org->id)->inRandomOrder()->first();
+
+            $delegate1 = User::firstOrCreate(
+                ['email' => $delegateEmail],
+                [
+                    'name' => $org->name.' Delegate',
+                    'password' => bcrypt('password'),
+                    'organization_id' => $org->id,
+                    'clinic_id' => $clinic?->id,
+                    'email_verified_at' => now(),
+                ]
+            );
             $delegate1->roles()->syncWithoutDetaching([$delegateRole->id]);
         });
     }

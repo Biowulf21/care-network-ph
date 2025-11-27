@@ -2,12 +2,12 @@
 
 namespace App\Http\Livewire\Dashboard;
 
-use Livewire\Component;
-use App\Models\Organization;
 use App\Models\Clinic;
-use App\Models\User;
-use App\Models\Patient;
 use App\Models\MedicalRecord;
+use App\Models\Organization;
+use App\Models\Patient;
+use App\Models\User;
+use Livewire\Component;
 
 class Superadmin extends Component
 {
@@ -28,7 +28,7 @@ class Superadmin extends Component
         $emarCompletion = $totalEmar ? round(($completedEmar / $totalEmar) * 100, 2) : 0;
 
         // Claims overview
-        $claims = MedicalRecord::query()->pluck('philhealth')->filter()->map(fn($p) => $p['claim_status'] ?? 'pending')->countBy()->toArray();
+        $claims = MedicalRecord::query()->pluck('philhealth')->filter()->map(fn ($p) => $p['claim_status'] ?? 'pending')->countBy()->toArray();
 
         return view('livewire.dashboard.superadmin', [
             'totalOrganizations' => Organization::count(),

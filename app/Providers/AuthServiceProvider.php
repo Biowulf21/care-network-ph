@@ -2,16 +2,16 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Gate;
-use App\Models\Organization;
 use App\Models\Clinic;
-use App\Models\Patient;
 use App\Models\MedicalRecord;
-use App\Policies\OrganizationPolicy;
+use App\Models\Organization;
+use App\Models\Patient;
 use App\Policies\ClinicPolicy;
-use App\Policies\PatientPolicy;
 use App\Policies\MedicalRecordPolicy;
+use App\Policies\OrganizationPolicy;
+use App\Policies\PatientPolicy;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -24,7 +24,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Gate::define('manage-users', fn($user) => $user->hasRole('superadmin'));
+        Gate::define('manage-users', fn ($user) => $user->hasRole('superadmin'));
     }
 
     protected function registerPolicies(): void

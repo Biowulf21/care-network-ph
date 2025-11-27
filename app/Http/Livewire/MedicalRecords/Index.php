@@ -2,12 +2,11 @@
 
 namespace App\Http\Livewire\MedicalRecords;
 
-use Livewire\Component;
-use Livewire\WithPagination;
 use App\Models\MedicalRecord;
 use Illuminate\Support\Facades\Auth;
-
 use Illuminate\Support\Facades\Gate;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class Index extends Component
 {
@@ -23,16 +22,20 @@ class Index extends Component
         $query = MedicalRecord::with('patient');
 
         if ($user->hasRole('admin')) {
-            $query->whereHas('clinic', fn($q) => $q->where('organization_id', $user->organization_id));
+            $query->whereHas('clinic', fn ($q) => $q->where('organization_id', $user->organization_id));
         }
 
         if ($user->hasRole('delegate')) {
-            $query->where('user_id', $user->id);
+            // delegates should only see records for their assigned clinic
+            $query->where('clinic_id', $user->clinic_id);
         }
 
         if ($this->search) {
             $query->where('doctor_notes', 'like', "%{$this->search}%");
         }
+
+        // newest first: prefer consultation_date, fall back to created_at
+        $query->orderByDesc('consultation_date')->orderByDesc('created_at');
 
         return view('livewire.medical-records.index', ['records' => $query->paginate(15)]);
     }
@@ -43,6 +46,7 @@ class Index extends Component
 
         if (Gate::denies('delete', $record)) {
             $this->dispatchBrowserEvent('notify', ['type' => 'error', 'message' => 'Not authorized to delete']);
+
             return;
         }
 
