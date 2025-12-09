@@ -31,13 +31,15 @@
             <canvas id="claimsChart" class="w-full h-full"></canvas>
         </div>
     </div>
+    {{-- Expose data for bundled charts initializer --}}
+    <div id="superadmin-chart-data" style="display:none"
+        data-labels='@json($labels)'
+        data-counts='@json($counts)'
+        data-emar='{{ $emarCompletion }}'
+        data-claims='@json($claims)'></div>
 </div>
-
-{{-- Expose data for bundled charts initializer --}}
-<div id="superadmin-chart-data" style="display:none"
-     data-labels='@json($labels)'
-     data-counts='@json($counts)'
-     data-emar='{{ $emarCompletion }}'
-     data-claims='@json($claims)'></div>
-
  
+
+
+
+
