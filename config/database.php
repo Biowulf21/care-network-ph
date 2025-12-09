@@ -58,9 +58,18 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => extension_loaded('pdo_mysql') ? array_filter((function () {
+                // Prefer the new Pdo\Mysql constant when running on PHP 8.5+.
+                // Fall back to the legacy PDO::MYSQL_ATTR_SSL_CA constant for older PHP versions.
+                $key = null;
+                if (class_exists(\Pdo\Mysql::class) && defined(\Pdo\Mysql::class . '::ATTR_SSL_CA')) {
+                    $key = \Pdo\Mysql::ATTR_SSL_CA;
+                } elseif (defined('PDO::MYSQL_ATTR_SSL_CA')) {
+                    $key = PDO::MYSQL_ATTR_SSL_CA;
+                }
+
+                return $key ? [$key => env('MYSQL_ATTR_SSL_CA')] : [];
+            })()) : [],
         ],
 
         'mariadb' => [
@@ -78,9 +87,16 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => extension_loaded('pdo_mysql') ? array_filter((function () {
+                $key = null;
+                if (class_exists(\Pdo\Mysql::class) && defined(\Pdo\Mysql::class . '::ATTR_SSL_CA')) {
+                    $key = \Pdo\Mysql::ATTR_SSL_CA;
+                } elseif (defined('PDO::MYSQL_ATTR_SSL_CA')) {
+                    $key = PDO::MYSQL_ATTR_SSL_CA;
+                }
+
+                return $key ? [$key => env('MYSQL_ATTR_SSL_CA')] : [];
+            })()) : [],
         ],
 
         'pgsql' => [
