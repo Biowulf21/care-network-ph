@@ -36,10 +36,28 @@ document.addEventListener("livewire:init", function () {
 });
 
 function initializeCharts() {
-    // Read chart data from the JSON script tag
+    // Check for analytics page charts
     const chartDataElement = document.getElementById("reports-chart-data");
-    if (!chartDataElement) return;
+    if (chartDataElement) {
+        initAnalyticsCharts(chartDataElement);
+    }
 
+    // Check for admin dashboard charts
+    const adminChartData = document.getElementById("admin-chart-data");
+    if (adminChartData) {
+        initAdminDashboardCharts(adminChartData);
+    }
+
+    // Check for superadmin dashboard charts
+    const superadminChartData = document.getElementById(
+        "superadmin-chart-data"
+    );
+    if (superadminChartData) {
+        initSuperadminDashboardCharts(superadminChartData);
+    }
+}
+
+function initAnalyticsCharts(chartDataElement) {
     let chartData;
     try {
         chartData = JSON.parse(chartDataElement.textContent);
@@ -530,6 +548,491 @@ function initRecordsMonthlyChart(data) {
                     },
                 },
             },
+        }),
+    });
+}
+
+/* ========================================
+ * DASHBOARD CHART INITIALIZATION FUNCTIONS
+ * ======================================== */
+
+function initAdminDashboardCharts(dataElement) {
+    try {
+        const traffic = JSON.parse(dataElement.dataset.traffic || "[]");
+        const completion = JSON.parse(dataElement.dataset.completion || "[]");
+        const gender = JSON.parse(dataElement.dataset.gender || "{}");
+        const newPatients = JSON.parse(dataElement.dataset.newPatients || "{}");
+        const appointmentStatus = JSON.parse(
+            dataElement.dataset.appointmentStatus || "{}"
+        );
+        const monthlyAppointments = JSON.parse(
+            dataElement.dataset.monthlyAppointments || "{}"
+        );
+        const monthlyConsultations = JSON.parse(
+            dataElement.dataset.monthlyConsultations || "{}"
+        );
+
+        initAdminTrafficChart(traffic);
+        initAdminEmarChart(completion);
+        initAdminGenderChart(gender);
+        initAdminNewPatientsChart(newPatients);
+        initAdminAppointmentStatusChart(appointmentStatus);
+        initAdminMonthlyAppointmentsChart(monthlyAppointments);
+        initAdminMonthlyConsultationsChart(monthlyConsultations);
+    } catch (e) {
+        console.error("Failed to initialize admin dashboard charts:", e);
+    }
+}
+
+function initSuperadminDashboardCharts(dataElement) {
+    try {
+        const labels = JSON.parse(dataElement.dataset.labels || "[]");
+        const counts = JSON.parse(dataElement.dataset.counts || "[]");
+        const emarCompletion = parseFloat(dataElement.dataset.emar || "0");
+        const claims = JSON.parse(dataElement.dataset.claims || "{}");
+
+        initSuperadminIntakeChart(labels, counts);
+        initSuperadminEmarChart(emarCompletion);
+        initSuperadminClaimsChart(claims);
+    } catch (e) {
+        console.error("Failed to initialize superadmin dashboard charts:", e);
+    }
+}
+
+/* Admin charts */
+function initAdminTrafficChart(data) {
+    const chartId = "adminTrafficChart";
+    destroyChart(chartId);
+    const canvas = document.getElementById(chartId);
+    if (!canvas || !data || data.length === 0) return;
+
+    const colors = getChartColors();
+    const labels = data.map((i) => i.clinic);
+    const values = data.map((i) => i.count);
+
+    new Chart(canvas, {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: "Patients Today",
+                    data: values,
+                    backgroundColor: colors.colors[0],
+                    borderColor: colors.colors[0],
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: getDefaultOptions({
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: colors.text, stepSize: 1 },
+                    grid: { color: colors.grid },
+                },
+                x: {
+                    ticks: { color: colors.text },
+                    grid: { color: colors.grid },
+                },
+            },
+            plugins: { legend: { display: false } },
+        }),
+    });
+}
+
+function initAdminEmarChart(data) {
+    const chartId = "adminEmarChart";
+    destroyChart(chartId);
+    const canvas = document.getElementById(chartId);
+    if (!canvas || !data || data.length === 0) return;
+
+    const colors = getChartColors();
+    const labels = data.map((i) => i.clinic);
+    const values = data.map((i) => i.rate);
+
+    new Chart(canvas, {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: "Completion Rate (%)",
+                    data: values,
+                    backgroundColor: colors.colors[1],
+                    borderColor: colors.colors[1],
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: getDefaultOptions({
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { color: colors.text, callback: (v) => v + "%" },
+                    grid: { color: colors.grid },
+                },
+                x: {
+                    ticks: { color: colors.text },
+                    grid: { color: colors.grid },
+                },
+            },
+            plugins: { legend: { display: false } },
+        }),
+    });
+}
+
+function initAdminGenderChart(data) {
+    const chartId = "adminGenderChart";
+    destroyChart(chartId);
+    const canvas = document.getElementById(chartId);
+    if (!canvas || !data || Object.keys(data).length === 0) return;
+
+    const colors = getChartColors();
+    const labels = Object.keys(data);
+    const values = Object.values(data);
+
+    new Chart(canvas, {
+        type: "pie",
+        data: {
+            labels: labels.map((l) => l.charAt(0).toUpperCase() + l.slice(1)),
+            datasets: [
+                {
+                    data: values,
+                    backgroundColor: colors.colors.slice(0, labels.length),
+                    borderWidth: 2,
+                    borderColor: colors.background,
+                },
+            ],
+        },
+        options: getDefaultOptions({
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: { color: colors.text, padding: 15 },
+                },
+            },
+        }),
+    });
+}
+
+function initAdminNewPatientsChart(data) {
+    const chartId = "adminNewPatientsChart";
+    destroyChart(chartId);
+    const canvas = document.getElementById(chartId);
+    if (!canvas || !data || Object.keys(data).length === 0) return;
+
+    const colors = getChartColors();
+    const sorted = Object.entries(data).sort((a, b) =>
+        a[0].localeCompare(b[0])
+    );
+    const labels = sorted.map(([d]) =>
+        new Date(d).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+        })
+    );
+    const values = sorted.map(([, v]) => v);
+
+    new Chart(canvas, {
+        type: "line",
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: "New Patients",
+                    data: values,
+                    borderColor: colors.colors[0],
+                    backgroundColor: colors.colors[0] + "33",
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                },
+            ],
+        },
+        options: getDefaultOptions({
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: colors.text, stepSize: 1 },
+                    grid: { color: colors.grid },
+                },
+                x: {
+                    ticks: {
+                        color: colors.text,
+                        maxRotation: 45,
+                        minRotation: 45,
+                    },
+                    grid: { color: colors.grid },
+                },
+            },
+        }),
+    });
+}
+
+function initAdminAppointmentStatusChart(data) {
+    const chartId = "adminAppointmentStatusChart";
+    destroyChart(chartId);
+    const canvas = document.getElementById(chartId);
+    if (!canvas || !data || Object.keys(data).length === 0) return;
+
+    const colors = getChartColors();
+    const labels = Object.keys(data);
+    const values = Object.values(data);
+
+    new Chart(canvas, {
+        type: "doughnut",
+        data: {
+            labels: labels.map((l) => l.charAt(0).toUpperCase() + l.slice(1)),
+            datasets: [
+                {
+                    data: values,
+                    backgroundColor: colors.colors,
+                    borderWidth: 2,
+                    borderColor: colors.background,
+                },
+            ],
+        },
+        options: getDefaultOptions({
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: { color: colors.text, padding: 15 },
+                },
+            },
+        }),
+    });
+}
+
+function initAdminMonthlyAppointmentsChart(data) {
+    const chartId = "adminMonthlyAppointmentsChart";
+    destroyChart(chartId);
+    const canvas = document.getElementById(chartId);
+    if (!canvas || !data || Object.keys(data).length === 0) return;
+
+    const colors = getChartColors();
+    const sorted = Object.entries(data).sort((a, b) =>
+        a[0].localeCompare(b[0])
+    );
+    const labels = sorted.map(([m]) => {
+        const [y, mm] = m.split("-");
+        return new Date(y, mm - 1).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+        });
+    });
+    const values = sorted.map(([, v]) => v);
+
+    new Chart(canvas, {
+        type: "line",
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: "Appointments",
+                    data: values,
+                    borderColor: colors.colors[1],
+                    backgroundColor: colors.colors[1] + "33",
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                },
+            ],
+        },
+        options: getDefaultOptions({
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: colors.text, stepSize: 1 },
+                    grid: { color: colors.grid },
+                },
+                x: {
+                    ticks: { color: colors.text },
+                    grid: { color: colors.grid },
+                },
+            },
+        }),
+    });
+}
+
+function initAdminMonthlyConsultationsChart(data) {
+    const chartId = "adminMonthlyConsultationsChart";
+    destroyChart(chartId);
+    const canvas = document.getElementById(chartId);
+    if (!canvas || !data || Object.keys(data).length === 0) return;
+
+    const colors = getChartColors();
+    const sorted = Object.entries(data).sort((a, b) =>
+        a[0].localeCompare(b[0])
+    );
+    const labels = sorted.map(([m]) => {
+        const [y, mm] = m.split("-");
+        return new Date(y, mm - 1).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+        });
+    });
+    const values = sorted.map(([, v]) => v);
+
+    new Chart(canvas, {
+        type: "line",
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: "Consultations",
+                    data: values,
+                    borderColor: colors.colors[4],
+                    backgroundColor: colors.colors[4] + "33",
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                },
+            ],
+        },
+        options: getDefaultOptions({
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: colors.text, stepSize: 1 },
+                    grid: { color: colors.grid },
+                },
+                x: {
+                    ticks: { color: colors.text },
+                    grid: { color: colors.grid },
+                },
+            },
+        }),
+    });
+}
+
+/* Superadmin charts */
+function initSuperadminIntakeChart(labels, counts) {
+    const chartId = "superadminIntakeChart";
+    destroyChart(chartId);
+    const canvas = document.getElementById(chartId);
+    if (!canvas || !labels || labels.length === 0) return;
+
+    const colors = getChartColors();
+    const formatted = labels.map((d) =>
+        new Date(d).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+        })
+    );
+
+    new Chart(canvas, {
+        type: "line",
+        data: {
+            labels: formatted,
+            datasets: [
+                {
+                    label: "Patient Intake",
+                    data: counts,
+                    borderColor: colors.colors[0],
+                    backgroundColor: colors.colors[0] + "33",
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                },
+            ],
+        },
+        options: getDefaultOptions({
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: colors.text, stepSize: 1 },
+                    grid: { color: colors.grid },
+                },
+                x: {
+                    ticks: {
+                        color: colors.text,
+                        maxRotation: 45,
+                        minRotation: 45,
+                    },
+                    grid: { color: colors.grid },
+                },
+            },
+        }),
+    });
+}
+
+function initSuperadminEmarChart(completionRate) {
+    const chartId = "superadminEmarChart";
+    destroyChart(chartId);
+    const canvas = document.getElementById(chartId);
+    if (!canvas) return;
+
+    const colors = getChartColors();
+
+    new Chart(canvas, {
+        type: "doughnut",
+        data: {
+            labels: ["Completed", "Incomplete"],
+            datasets: [
+                {
+                    data: [completionRate, 100 - completionRate],
+                    backgroundColor: [colors.colors[1], colors.grid],
+                    borderWidth: 2,
+                    borderColor: colors.background,
+                },
+            ],
+        },
+        options: getDefaultOptions({
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: { color: colors.text, padding: 15 },
+                },
+            },
+        }),
+    });
+}
+
+function initSuperadminClaimsChart(data) {
+    const chartId = "superadminClaimsChart";
+    destroyChart(chartId);
+    const canvas = document.getElementById(chartId);
+    if (!canvas || !data || Object.keys(data).length === 0) return;
+
+    const colors = getChartColors();
+    const labels = Object.keys(data);
+    const values = Object.values(data);
+
+    new Chart(canvas, {
+        type: "bar",
+        data: {
+            labels: labels.map((l) => l.charAt(0).toUpperCase() + l.slice(1)),
+            datasets: [
+                {
+                    label: "Claims",
+                    data: values,
+                    backgroundColor: colors.colors[2],
+                    borderColor: colors.colors[2],
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: getDefaultOptions({
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: colors.text, stepSize: 1 },
+                    grid: { color: colors.grid },
+                },
+                x: {
+                    ticks: { color: colors.text },
+                    grid: { color: colors.grid },
+                },
+            },
+            plugins: { legend: { display: false } },
         }),
     });
 }
