@@ -131,13 +131,17 @@
             <!-- Appointment Status Chart -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Appointment Status</h3>
-                <canvas id="appointmentStatusChart" width="400" height="200"></canvas>
+                <div class="relative h-64">
+                    <canvas id="appointmentStatusChart"></canvas>
+                </div>
             </div>
 
             <!-- Patient Demographics Chart -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Patient Age Groups</h3>
-                <canvas id="patientAgeChart" width="400" height="200"></canvas>
+                <div class="relative h-64">
+                    <canvas id="patientAgeChart"></canvas>
+                </div>
             </div>
         </div>
     @endif
@@ -166,7 +170,9 @@
             <!-- Gender Distribution -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Gender Distribution</h3>
-                <canvas id="genderChart" width="400" height="200"></canvas>
+                <div class="relative h-64">
+                    <canvas id="genderChart"></canvas>
+                </div>
             </div>
 
             <!-- Blood Type Distribution -->
@@ -190,7 +196,9 @@
             <!-- New Registrations -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">New Patient Registrations</h3>
-                <canvas id="newRegistrationsChart" width="400" height="200"></canvas>
+                <div class="relative h-64">
+                    <canvas id="newRegistrationsChart"></canvas>
+                </div>
             </div>
         </div>
     @endif
@@ -219,13 +227,17 @@
             <!-- Appointment Status -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Appointment Status</h3>
-                <canvas id="appointmentStatusChart2" width="400" height="200"></canvas>
+                <div class="relative h-64">
+                    <canvas id="appointmentStatusChart2"></canvas>
+                </div>
             </div>
 
             <!-- Monthly Trends -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 lg:col-span-2">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Appointment Trends</h3>
-                <canvas id="monthlyTrendsChart" width="800" height="300"></canvas>
+                <div class="relative h-80">
+                    <canvas id="monthlyTrendsChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -273,7 +285,9 @@
             <!-- Records by Month -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Consultations</h3>
-                <canvas id="recordsMonthlyChart" width="400" height="200"></canvas>
+                <div class="relative h-64">
+                    <canvas id="recordsMonthlyChart"></canvas>
+                </div>
             </div>
 
             <!-- Activity Metrics -->
@@ -298,211 +312,16 @@
     @endif
 </div>
 
-@script
-<script>
-    (function() {
-        // Use server-provided report type instead of accessing $wire directly in JS
-        const currentReportType = {!! json_encode($reportType) !!} ?? null;
-
-        // Provide JS-friendly copies of PHP data (fall back to empty objects/arrays)
-        const appointmentByStatus = {!! json_encode($appointmentStats['by_status'] ?? []) !!};
-        const patientAgeGroups = {!! json_encode($patientStats['age_groups'] ?? []) !!};
-        const patientByGender = {!! json_encode($patientStats['by_gender'] ?? []) !!};
-        const newRegistrations = {!! json_encode($patientStats['new_registrations'] ?? []) !!};
-        const appointmentByMonth = {!! json_encode($appointmentStats['by_month'] ?? []) !!};
-        const appointmentByType = {!! json_encode($appointmentStats['by_type'] ?? []) !!};
-        const medicalRecordsByMonth = {!! json_encode($medicalRecordStats['records_by_month'] ?? []) !!};
-
-        function registerLivewireHooks() {
-            if (typeof window.Livewire !== 'undefined') {
-                if (typeof window.Livewire.on === 'function') {
-                    window.Livewire.on('refresh', () => setTimeout(initializeCharts, 100));
-                } else if (window.Livewire.hook) {
-                    window.Livewire.hook('message.processed', () => setTimeout(initializeCharts, 100));
-                }
-            } else {
-                // As a fallback, initialize on DOM load
-                document.addEventListener('livewire:load', () => setTimeout(initializeCharts, 100));
-            }
-        }
-
-        function initializeCharts() {
-            try {
-                if (typeof Chart === 'undefined') return; // Chart.js not loaded yet
-
-                // Appointment Status Chart (overview)
-                try {
-                    const appointmentStatusCtx = document.getElementById('appointmentStatusChart');
-                    if (appointmentStatusCtx) {
-                        const labels = Object.keys(appointmentByStatus || {});
-                        const data = Object.values(appointmentByStatus || {});
-
-                        // reuse/destroy if already present
-                        if (window.appointmentStatusChart && typeof window.appointmentStatusChart.destroy === 'function') {
-                            try { window.appointmentStatusChart.destroy(); } catch (e) { /* ignore */ }
-                            window.appointmentStatusChart = null;
-                        }
-
-                        window.appointmentStatusChart = new Chart(appointmentStatusCtx.getContext('2d'), {
-                            type: 'doughnut',
-                            data: {
-                                labels,
-                                datasets: [{
-                                    data,
-                                    backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#6B7280', '#8B5CF6'],
-                                }]
-                            },
-                            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-                        });
-                    }
-                } catch (e) { console.warn('appointmentStatusChart init failed', e); }
-
-                // Patient Age Chart
-                try {
-                    const patientAgeCtx = document.getElementById('patientAgeChart');
-                    if (patientAgeCtx) {
-                        const labels = Object.keys(patientAgeGroups || {});
-                        const data = Object.values(patientAgeGroups || {});
-
-                        if (window.patientAgeChart && typeof window.patientAgeChart.destroy === 'function') {
-                            try { window.patientAgeChart.destroy(); } catch (e) { /* ignore */ }
-                            window.patientAgeChart = null;
-                        }
-
-                        window.patientAgeChart = new Chart(patientAgeCtx.getContext('2d'), {
-                            type: 'bar',
-                            data: { labels, datasets: [{ label: 'Patients', data, backgroundColor: '#3B82F6' }] },
-                            options: { responsive: true, scales: { y: { beginAtZero: true } } }
-                        });
-                    }
-                } catch (e) { console.warn('patientAgeChart init failed', e); }
-
-                // Initialize other charts based on the server-provided report type
-                if (currentReportType === 'patients') {
-                    initializePatientCharts();
-                } else if (currentReportType === 'appointments') {
-                    initializeAppointmentCharts();
-                } else if (currentReportType === 'medical_records') {
-                    initializeMedicalRecordCharts();
-                }
-            } catch (err) {
-                console.error('initializeCharts error', err);
-            }
-        }
-
-        function initializePatientCharts() {
-            try {
-                // Gender Chart
-                const genderCtx = document.getElementById('genderChart');
-                if (genderCtx) {
-                    const labels = Object.keys(patientByGender || {});
-                    const data = Object.values(patientByGender || {});
-
-                    if (window.genderChart && typeof window.genderChart.destroy === 'function') {
-                        try { window.genderChart.destroy(); } catch (e) { /* ignore */ }
-                        window.genderChart = null;
-                    }
-
-                    window.genderChart = new Chart(genderCtx.getContext('2d'), {
-                        type: 'pie',
-                        data: { labels, datasets: [{ data, backgroundColor: ['#3B82F6', '#EF4444', '#10B981'] }] },
-                        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-                    });
-                }
-            } catch (e) { console.warn('genderChart init failed', e); }
-
-            try {
-                // New Registrations Chart
-                const newRegCtx = document.getElementById('newRegistrationsChart');
-                if (newRegCtx) {
-                    const labels = Object.keys(newRegistrations || {});
-                    const data = Object.values(newRegistrations || {});
-
-                    if (window.newRegistrationsChart && typeof window.newRegistrationsChart.destroy === 'function') {
-                        try { window.newRegistrationsChart.destroy(); } catch (e) { /* ignore */ }
-                        window.newRegistrationsChart = null;
-                    }
-
-                    window.newRegistrationsChart = new Chart(newRegCtx.getContext('2d'), {
-                        type: 'line',
-                        data: { labels, datasets: [{ label: 'New Patients', data, borderColor: '#10B981', tension: 0.1 }] },
-                        options: { responsive: true, scales: { y: { beginAtZero: true } } }
-                    });
-                }
-            } catch (e) { console.warn('newRegistrationsChart init failed', e); }
-        }
-
-        function initializeAppointmentCharts() {
-            try {
-                // Appointment Status Chart 2
-                const appointmentStatus2Ctx = document.getElementById('appointmentStatusChart2');
-                if (appointmentStatus2Ctx) {
-                    const labels = Object.keys(appointmentByStatus || {});
-                    const data = Object.values(appointmentByStatus || {});
-
-                    if (window.appointmentStatusChart2 && typeof window.appointmentStatusChart2.destroy === 'function') {
-                        try { window.appointmentStatusChart2.destroy(); } catch (e) { /* ignore */ }
-                        window.appointmentStatusChart2 = null;
-                    }
-
-                    window.appointmentStatusChart2 = new Chart(appointmentStatus2Ctx.getContext('2d'), {
-                        type: 'doughnut',
-                        data: { labels, datasets: [{ data, backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#6B7280', '#8B5CF6'] }] },
-                        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-                    });
-                }
-            } catch (e) { console.warn('appointmentStatusChart2 init failed', e); }
-
-            try {
-                // Monthly Trends Chart
-                const monthlyTrendsCtx = document.getElementById('monthlyTrendsChart');
-                if (monthlyTrendsCtx) {
-                    const labels = Object.keys(appointmentByMonth || {});
-                    const data = Object.values(appointmentByMonth || {});
-
-                    if (window.monthlyTrendsChart && typeof window.monthlyTrendsChart.destroy === 'function') {
-                        try { window.monthlyTrendsChart.destroy(); } catch (e) { /* ignore */ }
-                        window.monthlyTrendsChart = null;
-                    }
-
-                    window.monthlyTrendsChart = new Chart(monthlyTrendsCtx.getContext('2d'), {
-                        type: 'line',
-                        data: { labels, datasets: [{ label: 'Appointments', data, borderColor: '#3B82F6', tension: 0.1 }] },
-                        options: { responsive: true, scales: { y: { beginAtZero: true } } }
-                    });
-                }
-            } catch (e) { console.warn('monthlyTrendsChart init failed', e); }
-        }
-
-        function initializeMedicalRecordCharts() {
-            try {
-                // Records Monthly Chart
-                const recordsMonthlyCtx = document.getElementById('recordsMonthlyChart');
-                if (recordsMonthlyCtx) {
-                    const labels = Object.keys(medicalRecordsByMonth || {});
-                    const data = Object.values(medicalRecordsByMonth || {});
-
-                    if (window.recordsMonthlyChart && typeof window.recordsMonthlyChart.destroy === 'function') {
-                        try { window.recordsMonthlyChart.destroy(); } catch (e) { /* ignore */ }
-                        window.recordsMonthlyChart = null;
-                    }
-
-                    window.recordsMonthlyChart = new Chart(recordsMonthlyCtx.getContext('2d'), {
-                        type: 'bar',
-                        data: { labels, datasets: [{ label: 'Consultations', data, backgroundColor: '#8B5CF6' }] },
-                        options: { responsive: true, scales: { y: { beginAtZero: true } } }
-                    });
-                }
-            } catch (e) { console.warn('recordsMonthlyChart init failed', e); }
-        }
-
-        // Initialize charts on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(initializeCharts, 100);
-        });
-
-        // Register Livewire hooks so charts re-init after updates
-        registerLivewireHooks();
-    })();
+{{-- Expose reports chart data as JSON to avoid inline JS evaluation by Livewire/Alpine --}}
+<script type="application/json" id="reports-chart-data">
+    {!! json_encode([
+        'reportType' => $reportType,
+        'appointmentByStatus' => $appointmentStats['by_status'] ?? [],
+        'patientAgeGroups' => $patientStats['age_groups'] ?? [],
+        'patientByGender' => $patientStats['by_gender'] ?? [],
+        'newRegistrations' => $patientStats['new_registrations'] ?? [],
+        'appointmentByMonth' => $appointmentStats['by_month'] ?? [],
+        'appointmentByType' => $appointmentStats['by_type'] ?? [],
+        'medicalRecordsByMonth' => $medicalRecordStats['records_by_month'] ?? [],
+    ]) !!}
 </script>
-@endscript

@@ -71,7 +71,7 @@ class Form extends Component
             'password_confirmation' => ['same:password'],
             'role_id' => ['required', 'exists:roles,id'],
             'organization_id' => ['required', 'exists:organizations,id'],
-            'clinic_id' => ['nullable', 'exists:clinics,id'],
+            'clinic_id' => ['required', 'exists:clinics,id'],
         ];
     }
 
