@@ -35,6 +35,23 @@ document.addEventListener("livewire:init", function () {
     });
 });
 
+// Attach a general Livewire hook once loaded to re-run chart initialization after every message
+document.addEventListener("livewire:load", function () {
+    if (typeof Livewire !== "undefined" && Livewire.hook) {
+        try {
+            Livewire.hook("message.processed", (message, component) => {
+                // Small delay so DOM updates settle
+                setTimeout(() => {
+                    initializeCharts();
+                }, 50);
+            });
+        } catch (e) {
+            // ignore if hook not available
+            console.warn("Livewire message.processed hook not available", e);
+        }
+    }
+});
+
 function initializeCharts() {
     // Check for analytics page charts
     const chartDataElement = document.getElementById("reports-chart-data");
@@ -91,8 +108,8 @@ function getChartColors() {
     const isDarkMode = document.documentElement.classList.contains("dark");
 
     return {
-        text: isDarkMode ? "#e5e7eb" : "#374151",
-        grid: isDarkMode ? "#374151" : "#e5e7eb",
+        text: isDarkMode ? "#e5e7eb" : "#000000",
+        grid: isDarkMode ? "#374151" : "#ffffff",
         background: isDarkMode ? "#1f2937" : "#ffffff",
         colors: [
             "#3b82f6", // blue
