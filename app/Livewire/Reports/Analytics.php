@@ -172,7 +172,7 @@ class Analytics extends Component
                 return '75+';
             })->map->count(),
             'by_gender' => $patients->groupBy('gender')->map->count(),
-            'by_blood_type' => $patients->where('blood_type')->groupBy('blood_type')->map->count(),
+            'by_blood_type' => $patients->filter(fn($p) => ! empty($p->blood_type))->groupBy('blood_type')->map->count(),
             'new_registrations' => $newPatients->groupBy(function ($patient) {
                 return $patient->created_at->format('Y-m-d');
             })->map->count(),

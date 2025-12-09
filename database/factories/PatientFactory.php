@@ -13,7 +13,7 @@ class PatientFactory extends Factory
     public function definition(): array
     {
         $dob = $this->faker->dateTimeBetween('-80 years', '-1 years');
-        $gender = $this->faker->randomElement(['Male', 'Female']);
+        $gender = $this->faker->randomElement(['male', 'female']);
         $bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
         $civilStatuses = ['Single', 'Married', 'Divorced', 'Widowed'];
         $regions = ['Region X (Northern Mindanao)', 'NCR', 'Region III (Central Luzon)', 'Region IV-A (CALABARZON)'];
@@ -27,6 +27,8 @@ class PatientFactory extends Factory
             'last_name' => $this->faker->lastName,
             'date_of_birth' => $dob->format('Y-m-d'),
             'sex' => $gender,
+            // Keep both 'sex' and 'gender' fields populated for compatibility
+            'gender' => $gender,
             'philhealth_number' => $this->faker->optional()->bothify('##-#########-#'),
             'philhealth_id' => $this->faker->optional()->bothify('##-#########-#'),
             'patient_id' => $this->faker->unique()->numerify('################'),
