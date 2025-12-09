@@ -82,23 +82,55 @@ function initAnalyticsCharts(chartDataElement) {
         console.error("Failed to parse chart data:", e);
         return;
     }
+    
+    // Initialize any charts for which a canvas exists. This is more robust
+    // than relying solely on `reportType` because Livewire DOM morphs can
+    // sometimes leave the JSON and canvases briefly out of sync.
 
-    // Check which report type is active
-    const reportType = chartData.reportType;
+    // Helper: attempt init for a canvas id with provided initializer and data
+    const tryInit = (canvasId, initFn, data) => {
+        const el = document.getElementById(canvasId);
+        if (!el) return false;
+        try {
+            initFn(data);
+        } catch (e) {
+            console.error(`Failed to init chart ${canvasId}:`, e);
+        }
+        return true;
+    };
 
-    // Initialize charts based on report type
-    if (reportType === "overview") {
-        initAppointmentStatusChart(chartData.appointmentByStatus);
-        initPatientAgeChart(chartData.patientAgeGroups);
-    } else if (reportType === "patients") {
-        initGenderChart(chartData.patientByGender);
-        initNewRegistrationsChart(chartData.newRegistrations);
-    } else if (reportType === "appointments") {
-        initAppointmentStatusChart2(chartData.appointmentByStatus);
-        initMonthlyTrendsChart(chartData.appointmentByMonth);
-    } else if (reportType === "medical_records") {
-        initRecordsMonthlyChart(chartData.medicalRecordsByMonth);
+    // Track attempts to avoid busy loops on transient states
+    chartDataElement._initAttempts = chartDataElement._initAttempts || 0;
+
+    const didAny = [];
+
+    // Overview charts
+    didAny.push(tryInit("appointmentStatusChart", initAppointmentStatusChart, chartData.appointmentByStatus));
+    didAny.push(tryInit("patientAgeChart", initPatientAgeChart, chartData.patientAgeGroups));
+
+    // Patients
+    didAny.push(tryInit("genderChart", initGenderChart, chartData.patientByGender));
+    didAny.push(tryInit("newRegistrationsChart", initNewRegistrationsChart, chartData.newRegistrations));
+
+    // Appointments
+    didAny.push(tryInit("appointmentStatusChart2", initAppointmentStatusChart2, chartData.appointmentByStatus));
+    didAny.push(tryInit("monthlyTrendsChart", initMonthlyTrendsChart, chartData.appointmentByMonth));
+
+    // Medical records
+    didAny.push(tryInit("recordsMonthlyChart", initRecordsMonthlyChart, chartData.medicalRecordsByMonth));
+
+    const anyPresentNow = didAny.some(Boolean);
+
+    if (!anyPresentNow && chartDataElement._initAttempts < 6) {
+        chartDataElement._initAttempts += 1;
+        // retry with backoff
+        const delay = [100, 150, 250, 400, 600, 800][chartDataElement._initAttempts - 1] || 800;
+        setTimeout(() => initAnalyticsCharts(chartDataElement), delay);
+        return;
     }
+
+    // Reset attempts after successful init or exhausted retries
+    chartDataElement._initAttempts = 0;
 }
 
 /**
