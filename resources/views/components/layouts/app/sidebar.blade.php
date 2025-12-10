@@ -39,6 +39,7 @@
                         @else
                             <flux:navlist.item icon="users" :href="route('patients.index')" :current="request()->routeIs('patients*')" wire:navigate>{{ __('Patients') }}</flux:navlist.item>
                             <flux:navlist.item icon="calendar" :href="route('appointments.calendar')" :current="request()->routeIs('appointments*')" wire:navigate>{{ __('Appointments') }}</flux:navlist.item>
+                            <flux:navlist.item icon="chart-bar" :href="route('reports.analytics')" :current="request()->routeIs('reports*')" wire:navigate>{{ __('Reports') }}</flux:navlist.item>
                         @endif
 
                     @endauth
