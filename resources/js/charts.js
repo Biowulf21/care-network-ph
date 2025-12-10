@@ -82,7 +82,7 @@ function initAnalyticsCharts(chartDataElement) {
         console.error("Failed to parse chart data:", e);
         return;
     }
-    
+
     // Initialize any charts for which a canvas exists. This is more robust
     // than relying solely on `reportType` because Livewire DOM morphs can
     // sometimes leave the JSON and canvases briefly out of sync.
@@ -105,26 +105,67 @@ function initAnalyticsCharts(chartDataElement) {
     const didAny = [];
 
     // Overview charts
-    didAny.push(tryInit("appointmentStatusChart", initAppointmentStatusChart, chartData.appointmentByStatus));
-    didAny.push(tryInit("patientAgeChart", initPatientAgeChart, chartData.patientAgeGroups));
+    didAny.push(
+        tryInit(
+            "appointmentStatusChart",
+            initAppointmentStatusChart,
+            chartData.appointmentByStatus
+        )
+    );
+    didAny.push(
+        tryInit(
+            "patientAgeChart",
+            initPatientAgeChart,
+            chartData.patientAgeGroups
+        )
+    );
 
     // Patients
-    didAny.push(tryInit("genderChart", initGenderChart, chartData.patientByGender));
-    didAny.push(tryInit("newRegistrationsChart", initNewRegistrationsChart, chartData.newRegistrations));
+    didAny.push(
+        tryInit("genderChart", initGenderChart, chartData.patientByGender)
+    );
+    didAny.push(
+        tryInit(
+            "newRegistrationsChart",
+            initNewRegistrationsChart,
+            chartData.newRegistrations
+        )
+    );
 
     // Appointments
-    didAny.push(tryInit("appointmentStatusChart2", initAppointmentStatusChart2, chartData.appointmentByStatus));
-    didAny.push(tryInit("monthlyTrendsChart", initMonthlyTrendsChart, chartData.appointmentByMonth));
+    didAny.push(
+        tryInit(
+            "appointmentStatusChart2",
+            initAppointmentStatusChart2,
+            chartData.appointmentByStatus
+        )
+    );
+    didAny.push(
+        tryInit(
+            "monthlyTrendsChart",
+            initMonthlyTrendsChart,
+            chartData.appointmentByMonth
+        )
+    );
 
     // Medical records
-    didAny.push(tryInit("recordsMonthlyChart", initRecordsMonthlyChart, chartData.medicalRecordsByMonth));
+    didAny.push(
+        tryInit(
+            "recordsMonthlyChart",
+            initRecordsMonthlyChart,
+            chartData.medicalRecordsByMonth
+        )
+    );
 
     const anyPresentNow = didAny.some(Boolean);
 
     if (!anyPresentNow && chartDataElement._initAttempts < 6) {
         chartDataElement._initAttempts += 1;
         // retry with backoff
-        const delay = [100, 150, 250, 400, 600, 800][chartDataElement._initAttempts - 1] || 800;
+        const delay =
+            [100, 150, 250, 400, 600, 800][
+                chartDataElement._initAttempts - 1
+            ] || 800;
         setTimeout(() => initAnalyticsCharts(chartDataElement), delay);
         return;
     }
