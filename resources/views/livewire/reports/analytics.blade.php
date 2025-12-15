@@ -1,8 +1,8 @@
 <div class="p-6">
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Analytics & Reports</h1>
-        
-        <div class="flex items-center space-x-4">
+
+        <div class="mt-4 sm:mt-0 flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-3 sm:space-y-0">
             <!-- Date Range Filter -->
             <select wire:model.live="dateRange" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
                 <option value="7">Last 7 Days</option>
@@ -36,7 +36,8 @@
 
     <!-- Report Type Navigation -->
     <div class="mb-8">
-        <div class="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+        <div class="overflow-x-auto -mx-2 px-2">
+            <div class="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg min-w-max">
             <button wire:click="setReportType('overview')" class="px-4 py-2 text-sm rounded-md transition-colors {{ $reportType === 'overview' ? 'bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' }}">
                 Overview
             </button>
@@ -131,15 +132,15 @@
             <!-- Appointment Status Chart -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Appointment Status</h3>
-                <div class="relative h-64">
-                    <canvas id="appointmentStatusChart"></canvas>
-                </div>
+                    <div class="chart-responsive relative h-64">
+                        <canvas id="appointmentStatusChart"></canvas>
+                    </div>
             </div>
 
             <!-- Patient Demographics Chart -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Patient Age Groups</h3>
-                <div class="relative h-64">
+                <div class="chart-responsive relative h-64">
                     <canvas id="patientAgeChart"></canvas>
                 </div>
             </div>
@@ -170,7 +171,7 @@
             <!-- Gender Distribution -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Gender Distribution</h3>
-                <div class="relative h-64">
+                <div class="chart-responsive relative h-64">
                     <canvas id="genderChart"></canvas>
                 </div>
             </div>
@@ -196,7 +197,7 @@
             <!-- New Registrations -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">New Patient Registrations</h3>
-                <div class="relative h-64">
+                <div class="chart-responsive relative h-64">
                     <canvas id="newRegistrationsChart"></canvas>
                 </div>
             </div>
@@ -227,7 +228,7 @@
             <!-- Appointment Status -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Appointment Status</h3>
-                <div class="relative h-64">
+                <div class="chart-responsive relative h-64">
                     <canvas id="appointmentStatusChart2"></canvas>
                 </div>
             </div>
@@ -235,7 +236,7 @@
             <!-- Monthly Trends -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 lg:col-span-2">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Appointment Trends</h3>
-                <div class="relative h-80">
+                <div class="chart-responsive relative h-80">
                     <canvas id="monthlyTrendsChart"></canvas>
                 </div>
             </div>
@@ -285,7 +286,7 @@
             <!-- Records by Month -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Consultations</h3>
-                <div class="relative h-64">
+                <div class="chart-responsive relative h-64">
                     <canvas id="recordsMonthlyChart"></canvas>
                 </div>
             </div>

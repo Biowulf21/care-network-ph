@@ -1,7 +1,7 @@
 <div class="p-6">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ auth()->user()->hasRole('admin') ? 'Delegates' : 'Users' }}</h1>
-        <a href="{{ route('users.create') }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">Add {{ auth()->user()->hasRole('admin') ? 'Delegate' : 'User' }}</a>
+        <a href="{{ route('users.create') }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-center">Add {{ auth()->user()->hasRole('admin') ? 'Delegate' : 'User' }}</a>
     </div>
 
     @if (session()->has('message'))
@@ -10,7 +10,8 @@
         </div>
     @endif
 
-    <div class="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow overflow-scroll ">
+    <div class="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
@@ -44,6 +45,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
 
         @if($users->hasPages())
             <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700">{{ $users->links() }}</div>

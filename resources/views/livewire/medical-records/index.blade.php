@@ -1,7 +1,7 @@
 <div class="max-w-7xl mx-auto p-6">
     <div class="bg-white rounded-lg shadow-md">
         <div class="p-6 border-b border-gray-200">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900">Medical Records</h1>
                     <p class="text-sm text-gray-500 mt-1">Patient consultation records and clinical documentation</p>

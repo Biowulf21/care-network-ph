@@ -1,8 +1,8 @@
 <div class="p-6">
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Appointment Calendar</h1>
         
-        <div class="flex items-center space-x-4">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
             <!-- View Type Buttons -->
             <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                 <button wire:click="setViewType('month')" class="px-3 py-2 text-sm rounded-md {{ $viewType === 'month' ? 'bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-300' }}">
@@ -40,8 +40,8 @@
 
     <!-- Calendar Header -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <div class="flex items-center space-x-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-center space-x-4">
                 <button wire:click="previousPeriod" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                     <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -71,7 +71,8 @@
         <!-- Calendar Grid -->
         @if($viewType === 'month')
             <!-- Month View -->
-            <div class="grid grid-cols-7 gap-0">
+            <div class="overflow-x-auto">
+            <div class="grid grid-cols-7 gap-0 min-w-[640px]">
                 <!-- Day Headers -->
                 @foreach(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $day)
                     <div class="p-3 text-center font-medium text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
@@ -118,6 +119,7 @@
                         </div>
                     </div>
                 @endforeach
+            </div>
             </div>
         @endif
 

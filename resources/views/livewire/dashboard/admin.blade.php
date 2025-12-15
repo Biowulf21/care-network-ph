@@ -14,7 +14,7 @@
         <!-- Today's Patient Traffic -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Today's Patient Traffic</h2>
-            <div class="relative h-64">
+            <div class="chart-responsive relative h-64">
                 <canvas id="adminTrafficChart"></canvas>
             </div>
         </div>
@@ -22,7 +22,7 @@
         <!-- EMAR Completion Rate per Clinic -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">EMAR Completion Rate per Clinic</h2>
-            <div class="relative h-64">
+            <div class="chart-responsive relative h-64">
                 <canvas id="adminEmarChart"></canvas>
             </div>
         </div>
@@ -30,7 +30,7 @@
         <!-- Gender Distribution -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Gender Distribution</h2>
-            <div class="relative h-64">
+            <div class="chart-responsive relative h-64">
                 <canvas id="adminGenderChart"></canvas>
             </div>
         </div>
@@ -38,7 +38,7 @@
         <!-- New Patient Registrations -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">New Patient Registrations (Last 30 Days)</h2>
-            <div class="relative h-64">
+            <div class="chart-responsive relative h-64">
                 <canvas id="adminNewPatientsChart"></canvas>
             </div>
         </div>
@@ -46,7 +46,7 @@
         <!-- Appointment Status -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Appointment Status (Last 30 Days)</h2>
-            <div class="relative h-64">
+            <div class="chart-responsive relative h-64">
                 <canvas id="adminAppointmentStatusChart"></canvas>
             </div>
         </div>
@@ -54,7 +54,7 @@
         <!-- Monthly Appointment Trends -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Appointment Trends</h2>
-            <div class="relative h-64">
+            <div class="chart-responsive relative h-64">
                 <canvas id="adminMonthlyAppointmentsChart"></canvas>
             </div>
         </div>
@@ -62,7 +62,7 @@
         <!-- Monthly Consultations -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 lg:col-span-2">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Consultations</h2>
-            <div class="relative h-80">
+            <div class="chart-responsive relative h-80">
                 <canvas id="adminMonthlyConsultationsChart"></canvas>
             </div>
         </div>

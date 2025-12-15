@@ -163,7 +163,7 @@
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Vital Signs Chart</h3>
             
             @if(count($this->vitalsChartData['dates']) > 0)
-                <div class="mb-6">
+                <div class="chart-responsive mb-6">
                     <canvas id="vitalsChart" width="400" height="200"></canvas>
                 </div>
                 
