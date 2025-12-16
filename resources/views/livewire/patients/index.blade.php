@@ -12,7 +12,7 @@
                 </a>
             </div>
             <div class="mt-4">
-                <input wire:model.debounce.300ms="search" placeholder="Search by name..." class="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200" />
+                <input wire:model.live.debounce.300ms="search" placeholder="Search by name..." class="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200" />
             </div>
         </div>
 
@@ -71,7 +71,12 @@
         </div>
 
         <div class="px-6 py-4 border-t border-gray-200">
-            {{ $patients->links() }}
+            <nav role="navigation" aria-label="Pagination Navigation" class="flex items-center justify-between">
+                <div></div>
+                <div>
+                    {{ $patients->links() }}
+                </div>
+            </nav>
         </div>
     </div>
 </div>

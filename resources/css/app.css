@@ -47,6 +47,18 @@
     }
 }
 
+@layer components {
+    /* Make the active pagination page more prominent */
+    [role="navigation"] [aria-current="page"] {
+        @apply bg-blue-600 text-white rounded-full shadow;
+    }
+
+    /* Slightly bolder link appearance for pagination links */
+    [role="navigation"] a.relative.inline-flex.items-center {
+        @apply text-gray-700;
+    }
+}
+
 [data-flux-field]:not(ui-radio, ui-checkbox) {
     @apply grid gap-2;
 }

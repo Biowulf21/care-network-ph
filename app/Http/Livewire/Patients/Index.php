@@ -16,6 +16,8 @@ class Index extends Component
 
     protected $listeners = ['deletePatient' => 'delete'];
 
+    protected $updatesQueryString = [];
+
     public function render()
     {
         $user = Auth::user();
@@ -49,5 +51,13 @@ class Index extends Component
         $patient->delete();
         $this->resetPage();
         $this->dispatchBrowserEvent('notify', ['type' => 'success', 'message' => 'Patient deleted']);
+    }
+
+    /**
+     * Reset pagination when the search term changes so results start from page 1.
+     */
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
     }
 }
