@@ -82,6 +82,48 @@ Route::get('/medical-records/{record}/prescription', function (MedicalRecord $re
     return view('prescriptions.print', ['record' => $record]);
 })->middleware('auth')->name('medical-records.prescription');
 
+// Generate relational prescription from a medical record's legacy JSON payload (if present)
+Route::post('/medical-records/{record}/generate', function (MedicalRecord $record) {
+    if (! auth()->check()) {
+        abort(403);
+    }
+
+    // If relational prescriptions already exist, just redirect to print
+    if ($record->prescriptions()->exists()) {
+        return redirect()->route('medical-records.prescription', $record);
+    }
+
+    // If legacy JSON exists on the record, use it to create a relational prescription
+    $legacy = $record->getAttribute('prescriptions');
+
+    if (! is_array($legacy) || empty($legacy)) {
+        abort(404, 'No prescription data available to generate');
+    }
+
+    $prescription = \App\Models\Prescription::create([
+        'medical_record_id' => $record->id,
+        'patient_id' => $record->patient_id,
+        'user_id' => auth()->id(),
+        'notes' => null,
+    ]);
+
+    foreach ($legacy as $line) {
+        \App\Models\PrescriptionItem::create([
+            'prescription_id' => $prescription->id,
+            'name' => $line['name'] ?? '',
+            'dosage' => $line['dosage'] ?? null,
+            'quantity' => $line['quantity'] ?? null,
+            'instructions' => $line['instructions'] ?? null,
+        ]);
+    }
+
+    // Remove legacy JSON from the record (do not keep prescriptions on medical record)
+    $record->setAttribute('prescriptions', null);
+    $record->save();
+
+    return redirect()->route('medical-records.prescription', $record);
+})->middleware('auth')->name('medical-records.generate');
+
 // Doctors CRUD (separate auth group to avoid editing the main block)
 Route::middleware(['auth'])->group(function () {
     Route::get('/doctors', \App\Http\Livewire\Doctors\Index::class)->name('doctors.index');

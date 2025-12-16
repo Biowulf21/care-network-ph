@@ -72,35 +72,35 @@
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 <div>
                     <label for="bp" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Blood Pressure</label>
-                    <input type="text" wire:model="state.vital_signs.blood_pressure" id="bp" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="120/80">
+                    <input type="text" wire:model="state.vitals.blood_pressure" id="bp" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="120/80">
                 </div>
                 <div>
                     <label for="hr" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Heart Rate (bpm)</label>
-                    <input type="number" wire:model="state.vital_signs.heart_rate" id="hr" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="72">
+                    <input type="number" wire:model="state.vitals.heart_rate" id="hr" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="72">
                 </div>
                 <div>
                     <label for="temp" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Temperature (°C)</label>
-                    <input type="number" step="0.1" wire:model="state.vital_signs.temperature" id="temp" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="37.0">
+                    <input type="number" step="0.1" wire:model="state.vitals.temperature" id="temp" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="37.0">
                 </div>
                 <div>
                     <label for="weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Weight (kg)</label>
-                    <input type="number" step="0.1" wire:model="state.vital_signs.weight" id="weight" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="70.0">
+                    <input type="number" step="0.1" wire:model="state.vitals.weight" id="weight" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="70.0">
                 </div>
                 <div>
                     <label for="height" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Height (cm)</label>
-                    <input type="number" wire:model="state.vital_signs.height" id="height" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="170">
+                    <input type="number" wire:model="state.vitals.height" id="height" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="170">
                 </div>
                 <div>
                     <label for="o2_sat" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">O2 Saturation (%)</label>
-                    <input type="number" wire:model="state.vital_signs.oxygen_saturation" id="o2_sat" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="98">
+                    <input type="number" wire:model="state.vitals.oxygen_saturation" id="o2_sat" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="98">
                 </div>
                 <div>
                     <label for="rr" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Respiratory Rate</label>
-                    <input type="number" wire:model="state.vital_signs.respiratory_rate" id="rr" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="16">
+                    <input type="number" wire:model="state.vitals.respiratory_rate" id="rr" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="16">
                 </div>
                 <div>
                     <label for="bmi" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">BMI</label>
-                    <input type="number" step="0.1" wire:model="state.vital_signs.bmi" id="bmi" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="24.2">
+                    <input type="number" step="0.1" wire:model="state.vitals.bmi" id="bmi" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="24.2">
                 </div>
             </div>
         </div>
@@ -154,7 +154,7 @@
                 </div>
                 <div>
                     <label for="philhealth_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">PhilHealth Number</label>
-                    <input wire:model="state.philhealth_number" id="philhealth_number" placeholder="PhilHealth #" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                    <input disabled wire:model="state.philhealth_number" id="philhealth_number" placeholder="PhilHealth #" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
                 </div>
             </div>
         </div>
@@ -170,14 +170,29 @@
 
                 @foreach($prescriptions as $i => $line)
                     <div class="grid grid-cols-12 gap-2 items-center">
-                        <div class="col-span-5">
+                        <div class="col-span-4">
                             <input type="text" wire:model.defer="prescriptions.{{ $i }}.name" placeholder="Medicine name" class="w-full rounded-md border px-3 py-2" />
                         </div>
-                        <div class="col-span-2">
-                            <input type="text" wire:model.defer="prescriptions.{{ $i }}.dosage" placeholder="Dosage" class="w-full rounded-md border px-3 py-2" />
+                        <div class="col-span-1">
+                            <label class="sr-only">Quantity</label>
+                            <input type='number' min='1' wire:model.defer="prescriptions.{{ $i }}.quantity" class="w-full rounded-md border px-3 py-2">
                         </div>
                         <div class="col-span-2">
-                            <input type="text" wire:model.defer="prescriptions.{{ $i }}.quantity" placeholder="Qty" class="w-full rounded-md border px-3 py-2" />
+                            <label class="sr-only">Dosage unit</label>
+                            <select wire:model.defer="prescriptions.{{ $i }}.dosage" class="w-full rounded-md border px-3 py-2">
+                                <option value="">-- Unit --</option>
+                                <option value="tbsp">tbsp</option>
+                                <option value="tablet/capsule">tablet / capsule</option>
+                                <option value="gram">gram</option>
+                                <option value="ml">ml</option>
+                                <option value="other">Other (specify)</option>
+                            </select>
+                            @if(isset($prescriptions[$i]['dosage']) && $prescriptions[$i]['dosage'] === 'other')
+                                <input type="text" wire:model.defer="prescriptions.{{ $i }}.dosage_custom" placeholder="Custom dosage unit" class="w-full mt-2 rounded-md border px-3 py-2" />
+                            @endif
+                        </div>
+                        <div class="col-span-2">
+                            <input type="text" wire:model.defer="prescriptions.{{ $i }}.frequency" placeholder="Frequency (e.g., 1 tab every 8 hrs)" class="w-full rounded-md border px-3 py-2" />
                         </div>
                         <div class="col-span-2">
                             <input type="text" wire:model.defer="prescriptions.{{ $i }}.instructions" placeholder="Instructions" class="w-full rounded-md border px-3 py-2" />

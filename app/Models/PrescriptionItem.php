@@ -10,7 +10,7 @@ class PrescriptionItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'prescription_id', 'inventory_item_id', 'name', 'dosage', 'quantity', 'instructions',
+        'prescription_id', 'inventory_item_id', 'name', 'dosage', 'quantity', 'frequency', 'instructions',
     ];
 
     public function prescription()

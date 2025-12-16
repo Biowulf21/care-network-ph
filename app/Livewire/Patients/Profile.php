@@ -101,8 +101,10 @@ class Profile extends Component
 
     public function getPrescriptionHistoryProperty()
     {
+        // Return medical records that have relational prescriptions (avoid legacy JSON column)
         return $this->patient->medicalRecords()
-            ->whereNotNull('prescriptions')
+            ->whereHas('prescriptions')
+            ->with('prescriptions.items')
             ->latest('consultation_date')
             ->limit(10)
             ->get();

@@ -294,6 +294,25 @@
 
             @if($records->isNotEmpty())
                 <div class="space-y-4">
+                    {{-- First: show any legacy JSON prescriptions that can be generated into relational prescriptions --}}
+                    @foreach($records as $r)
+                        @if(!$r->prescriptions()->exists() && is_array($r->prescriptions) && count($r->prescriptions))
+                            <div class="p-4 bg-yellow-50 rounded shadow-sm border border-yellow-100 flex items-center justify-between">
+                                <div>
+                                    <div class="font-medium">Legacy Prescription for Record {{ $r->consultation_date?->format('M d, Y') }}</div>
+                                    <div class="text-sm text-gray-500">This record has a stored prescription payload that can be converted to a relational prescription.</div>
+                                </div>
+                                <div class="text-right">
+                                    <form action="{{ route('medical-records.generate', $r) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="px-3 py-1 bg-red-50 border border-red-400 text-red-700 rounded">Generate</button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
+
+                    {{-- Then show existing relational prescriptions --}}
                     @foreach($records as $r)
                         @php $presList = $r->prescriptions()->with('items')->get(); @endphp
                         @foreach($presList as $pres)
@@ -303,10 +322,14 @@
                                         <div class="font-medium">Prescription #{{ $pres->id }}</div>
                                         <div class="text-sm text-gray-500">Record: {{ $r->consultation_date?->format('M d, Y') }}</div>
                                     </div>
-                                    <div>
+                                    <div class="flex items-center space-x-2">
                                         @if($r->id)
                                             <a href="{{ route('medical-records.show', $r) }}" class="text-sm text-blue-600">View record</a>
                                         @endif
+                                        <form action="{{ route('medical-records.generate', $r) }}" method="POST">
+                                            @csrf
+                                    <button type="submit" class="text-sm px-2 py-1 bg-green-600 border border-green-600 text-white rounded">Generate</button>
+                                        </form>
                                     </div>
                                 </div>
                                 <ul class="list-disc pl-5 mt-3">

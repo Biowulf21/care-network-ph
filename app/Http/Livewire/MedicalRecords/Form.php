@@ -36,7 +36,7 @@ class Form extends Component
         'state.doctor_notes' => 'nullable|string',
         'state.provider_notes' => 'nullable|string',
         'state.philhealth_number' => 'nullable|string',
-        'state.vital_signs' => 'nullable|array',
+        'state.vitals' => 'nullable|array',
     ];
 
     protected $validationAttributes = [
@@ -73,6 +73,14 @@ class Form extends Component
             $this->state['consultation_date'] = now()->format('Y-m-d');
         }
 
+        // If we already have a patient selected (from query or state), prefill philhealth
+        if (! empty($this->state['patient_id']) && empty($this->state['philhealth_number'])) {
+            $p = Patient::find($this->state['patient_id']);
+            if ($p && ! empty($p->philhealth_number)) {
+                $this->state['philhealth_number'] = $p->philhealth_number;
+            }
+        }
+
         // load prescriptions from existing record if present
         if ($this->record) {
             // prefer relational prescriptions if available
@@ -90,6 +98,25 @@ class Form extends Component
             } elseif (! empty($this->state['prescriptions'])) {
                 $this->prescriptions = $this->state['prescriptions'];
             }
+            // ensure vitals are available as 'vitals' in state
+            $this->state['vitals'] = $this->record->vitals ?? ($this->state['vitals'] ?? []);
+        }
+    }
+
+    public function updatedStatePatientId($patientId)
+    {
+        if (empty($patientId)) {
+            return;
+        }
+
+        $patient = Patient::find($patientId);
+        if (! $patient) {
+            return;
+        }
+
+        // Prepopulate philhealth number from patient if not already set
+        if (empty($this->state['philhealth_number']) && ! empty($patient->philhealth_number)) {
+            $this->state['philhealth_number'] = $patient->philhealth_number;
         }
     }
 
@@ -104,64 +131,119 @@ class Form extends Component
         if ($user->hasRole('delegate')) {
             $this->state['clinic_id'] = $user->clinic_id;
         }
-
+        // Persist record without creating relational prescriptions automatically.
         if ($this->record) {
             $this->record->update($this->state);
             session()->flash('message', 'Medical record updated successfully.');
-            // Update prescriptions JSON on the record
-            $this->record->prescriptions = $this->prescriptions;
-            $this->record->save();
-            // Also sync to prescriptions table for integration
-            if (! empty($this->prescriptions)) {
-                // remove existing prescriptions and recreate
-                $this->record->prescriptions()->delete();
-                foreach ($this->prescriptions as $line) {
-                    $pres = \App\Models\Prescription::create([
-                        'medical_record_id' => $this->record->id,
-                        'patient_id' => $this->record->patient_id,
-                        'user_id' => $user->id,
-                        'notes' => null,
-                    ]);
-                    \App\Models\PrescriptionItem::create([
-                        'prescription_id' => $pres->id,
-                        'name' => $line['name'] ?? '',
-                        'dosage' => $line['dosage'] ?? null,
-                        'quantity' => $line['quantity'] ?? null,
-                        'instructions' => $line['instructions'] ?? null,
-                    ]);
-                }
-            }
         } else {
             $this->record = MedicalRecord::create(array_merge($this->state, ['user_id' => $user->id]));
             session()->flash('message', 'Medical record created successfully.');
-            // Save prescriptions JSON and create relational prescriptions
-            if (! empty($this->prescriptions)) {
-                $this->record->prescriptions = $this->prescriptions;
-                $this->record->save();
-                foreach ($this->prescriptions as $line) {
-                    $pres = \App\Models\Prescription::create([
-                        'medical_record_id' => $this->record->id,
-                        'patient_id' => $this->record->patient_id,
-                        'user_id' => $user->id,
-                        'notes' => null,
-                    ]);
-                    \App\Models\PrescriptionItem::create([
-                        'prescription_id' => $pres->id,
-                        'name' => $line['name'] ?? '',
-                        'dosage' => $line['dosage'] ?? null,
-                        'quantity' => $line['quantity'] ?? null,
-                        'instructions' => $line['instructions'] ?? null,
-                    ]);
-                }
-            }
         }
+
+        // Do not store prescriptions on the medical record as JSON per new policy.
+        $this->record->save();
+
+        // If prescription lines exist in the form, persist them as a relational Prescription
+        $this->savePrescriptionsForRecord();
 
         return redirect()->route('medical-records.index');
     }
 
+    protected function savePrescriptionsForRecord(): void
+    {
+        if (empty($this->prescriptions) || ! is_array($this->prescriptions)) {
+            return;
+        }
+
+        // Ensure record is saved
+        if (! $this->record) {
+            return;
+        }
+
+        // Remove existing prescriptions for this record to avoid duplicates on edit
+        $existing = $this->record->prescriptions()->with('items')->get();
+        foreach ($existing as $p) {
+            $p->items()->delete();
+            $p->delete();
+        }
+
+        $user = Auth::user();
+
+        $prescription = \App\Models\Prescription::create([
+            'medical_record_id' => $this->record->id,
+            'patient_id' => $this->record->patient_id,
+            'user_id' => $user->id,
+            'notes' => null,
+        ]);
+
+        foreach ($this->prescriptions as $line) {
+            // allow an optional custom dosage field if present
+            $dosage = $line['dosage'] ?? null;
+            if (is_array($line) && isset($line['dosage_custom']) && ! empty($line['dosage_custom'])) {
+                $dosage = $line['dosage_custom'];
+            }
+
+            \App\Models\PrescriptionItem::create([
+                'prescription_id' => $prescription->id,
+                'name' => $line['name'] ?? '',
+                'dosage' => $dosage,
+                'quantity' => $line['quantity'] ?? null,
+                'frequency' => $line['frequency'] ?? null,
+                'instructions' => $line['instructions'] ?? null,
+            ]);
+        }
+    }
+
+    protected function persistRecordForPrescription(): void
+    {
+        $user = Auth::user();
+
+        if ($this->record) {
+            $this->record->update($this->state);
+        } else {
+            $this->record = MedicalRecord::create(array_merge($this->state, ['user_id' => $user->id]));
+        }
+
+        // Persist record but do not attach prescriptions JSON to the record.
+        $this->record->save();
+    }
+
+    public function generatePrescription()
+    {
+        if (empty($this->prescriptions)) {
+            $this->dispatchBrowserEvent('notify', ['type' => 'error', 'message' => 'No prescription lines to generate.']);
+            return;
+        }
+
+        $user = Auth::user();
+
+        // Ensure record exists and is saved
+        $this->persistRecordForPrescription();
+
+        // Create a single prescription and attach all items
+        $prescription = \App\Models\Prescription::create([
+            'medical_record_id' => $this->record->id,
+            'patient_id' => $this->record->patient_id,
+            'user_id' => $user->id,
+            'notes' => null,
+        ]);
+
+        foreach ($this->prescriptions as $line) {
+            \App\Models\PrescriptionItem::create([
+                'prescription_id' => $prescription->id,
+                'name' => $line['name'] ?? '',
+                'dosage' => $line['dosage'] ?? null,
+                'quantity' => $line['quantity'] ?? null,
+                'instructions' => $line['instructions'] ?? null,
+            ]);
+        }
+
+        return redirect()->route('medical-records.prescription', $this->record);
+    }
+
     public function addPrescriptionLine()
     {
-        $this->prescriptions[] = ['name' => '', 'dosage' => '', 'quantity' => '', 'instructions' => ''];
+        $this->prescriptions[] = ['name' => '', 'dosage' => '', 'dosage_custom' => '', 'quantity' => '1', 'frequency' => '', 'instructions' => ''];
     }
 
     public function removePrescriptionLine($index)
