@@ -4,12 +4,26 @@
     'emptyLabel' => 'No results',
 ])
 
+@php
+    $modelAttr = $attributes->get('wire:model') ?? $attributes->get('wire:model.defer') ?? $attributes->get('wire:model.live') ?? $attributes->get('wire:model.lazy') ?? null;
+    $boundName = null;
+    if ($modelAttr) {
+        $parts = explode('.', $modelAttr);
+        $first = array_shift($parts);
+        $boundName = $first;
+        foreach ($parts as $p) {
+            $boundName .= "[{$p}]";
+        }
+    }
+@endphp
+
 <div x-data="{
         open: false,
         query: '',
         selectedLabel: null,
         selectedValue: null,
         optionsMap: {},
+        boundModel: '{{ addslashes($modelAttr ?? '') }}',
         get filtered() {
             const map = this.optionsMap || {};
             const entries = Object.entries(map);
@@ -17,11 +31,11 @@
             return entries.filter(([k, v]) => v.toLowerCase().includes(this.query.toLowerCase()));
         }
     }"
-    x-init="optionsMap = {{ json_encode($options) }};"
+    x-init="optionsMap = {{ json_encode($options) }}; $nextTick(() => { const v = $refs.hidden?.value; if (v) { selectedValue = v; selectedLabel = optionsMap[v] ?? v; query = selectedLabel; } }); $watch('selectedValue', (v)=>{ if($refs.hidden) { $refs.hidden.value = v ?? ''; $refs.hidden.dispatchEvent(new InputEvent('input',{bubbles:true,composed:true})); $refs.hidden.dispatchEvent(new Event('change',{bubbles:true,composed:true})); if (this.boundModel && typeof $wire !== 'undefined') { $wire.set(this.boundModel, v); } } })"
     class="relative">
 
     <!-- Hidden input bound to Livewire via forwarded wire:* attributes -->
-    <input type="hidden" x-ref="hidden" {{ $attributes->whereStartsWith('wire:')->merge(['id' => $attributes->get('id') ?? null]) }} />
+    <input type="hidden" x-ref="hidden" :value="selectedValue" {{ $attributes->whereStartsWith('wire:')->merge(['id' => $attributes->get('id') ?? null]) }} @if($boundName) name="{{ $boundName }}" @endif />
 
     <!-- Search / display input -->
     <div class="relative">
@@ -30,12 +44,12 @@
             x-model="query"
             @focus="open = true"
             @keydown.arrow-down.prevent=" $nextTick(() => $refs.list.querySelector('button')?.focus())"
-            @click="open = true"
+            @click.stop="open = true"
             :placeholder="selectedLabel ? selectedLabel : '{{ $placeholder }}'"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
         />
 
-        <button type="button" @click="open = !open" class="absolute inset-y-0 end-0 px-3 text-gray-500">
+        <button type="button" @click.stop="open = !open" class="absolute inset-y-0 end-0 px-3 text-gray-500">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
         </button>
     </div>
@@ -46,7 +60,7 @@
                 <template x-for="([val, label]) in filtered" :key="val">
                     <div>
                         <button type="button"
-                            @click.prevent="selectedValue = val; selectedLabel = label; open = false; query = label; $refs.hidden.value = val; $refs.hidden.dispatchEvent(new Event('input')); $refs.hidden.dispatchEvent(new Event('change'))"
+                            @click.prevent="selectedValue = val; selectedLabel = label; open = false; query = label;"
                                 class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
                             <span x-text="label"></span>
                         </button>

@@ -62,5 +62,9 @@ class AppServiceProvider extends ServiceProvider
         if (class_exists(\App\Livewire\Appointments\Calendar::class)) {
             Livewire::component('appointments.calendar', \App\Livewire\Appointments\Calendar::class);
         }
+
+        if (class_exists(\App\Http\Livewire\SearchableDropdown::class)) {
+            Livewire::component('searchable-dropdown', \App\Http\Livewire\SearchableDropdown::class);
+        }
     }
 }

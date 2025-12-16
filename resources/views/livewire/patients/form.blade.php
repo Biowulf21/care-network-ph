@@ -1,16 +1,30 @@
 <div class="max-w-4xl mx-auto p-6">
     <form wire:submit.prevent="save" class="bg-white shadow-md rounded-lg p-6">
         <div class="flex items-start gap-6 mb-6">
-            <div class="flex-shrink-0">
-                <div class="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold">
-                    @php
-                        $first = $state['first_name'] ?? ($patient->first_name ?? '');
-                        $last = $state['last_name'] ?? ($patient->last_name ?? '');
-                        $initials = trim((substr($first,0,1) ?? '') . (substr($last,0,1) ?? '')) ?: 'P';
-                    @endphp
-                    {{ strtoupper($initials) }}
+                <div class="flex-shrink-0">
+                    <div class="relative">
+                        <div class="h-20 w-20 rounded-full bg-blue-600 overflow-hidden flex items-center justify-center text-white text-2xl font-bold">
+                            @php
+                                $first = $state['first_name'] ?? ($patient->first_name ?? '');
+                                $last = $state['last_name'] ?? ($patient->last_name ?? '');
+                                $initials = trim((substr($first,0,1) ?? '') . (substr($last,0,1) ?? '')) ?: 'P';
+                            @endphp
+                            @if($photo)
+                                <img src="{{ $photo->temporaryUrl() }}" alt="Photo" class="h-full w-full object-cover" />
+                            @elseif($existingPhotoUrl)
+                                <img src="{{ $existingPhotoUrl }}" alt="Photo" class="h-full w-full object-cover" />
+                            @else
+                                {{ strtoupper($initials) }}
+                            @endif
+                        </div>
+
+                        <label title="Choose photo" class="absolute -bottom-2 -right-2 z-10 inline-flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded-full cursor-pointer shadow-sm overflow-hidden">
+                            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16v-6a4 4 0 014-4h2a4 4 0 014 4v6M7 16l5 5 5-5"/></svg>
+                            <input type="file" accept="image/*" wire:model="photo" class="sr-only" aria-label="Choose photo" />
+                        </label>
+                    </div>
+                    @error('photo') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                 </div>
-            </div>
 
             <div class="flex-1">
                 <div class="flex items-center justify-between">
@@ -28,6 +42,7 @@
                 @if(session()->has('message'))
                     <div class="mt-4 p-3 bg-green-50 border border-green-200 text-green-800 rounded">{{ session('message') }}</div>
                 @endif
+                
             </div>
         </div>
 
@@ -62,7 +77,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Sex</label>
-                        <x-searchable-dropdown :options="['Male' => 'Male','Female' => 'Female','Other' => 'Other']" placeholder="Sex" wire:model.defer="state.sex" />
+                        <x-searchable-dropdown :options="['Male' => 'Male','Female' => 'Female','Other' => 'Other']" placeholder="Sex" wire:model="state.sex" />
                         @error('state.sex') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
                     </div>
 
@@ -74,6 +89,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">PhilHealth #</label>
                         <input wire:model.defer="state.philhealth_number" type="text" class="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 @error('state.philhealth_number') border-red-400 bg-red-50 @enderror" />
+                        @error('state.philhealth_number') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
                     </div>
                 </div>
 
@@ -103,7 +119,7 @@
                         <div class="mt-1 p-2 bg-gray-50 rounded">{{ optional(auth()->user()->clinic)->name ?? 'Assigned clinic' }}</div>
                     @else
                         <label class="block text-sm font-medium text-gray-700">Clinic</label>
-                        <x-searchable-dropdown :options="$clinics->pluck('name','id')" placeholder="Clinic" wire:model.defer="state.clinic_id" />
+                        <x-searchable-dropdown :options="$clinics->pluck('name','id')->toArray()" placeholder="Clinic" wire:model="state.clinic_id" />
                         @error('state.clinic_id') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
                     @endif
                 </div>
