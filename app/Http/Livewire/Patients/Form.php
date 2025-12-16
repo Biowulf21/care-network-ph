@@ -25,11 +25,12 @@ class Form extends Component
         $user = Auth::user();
         // Provide clinics list for admin / superadmin so they can pick where patient belongs
         if ($user->hasRole('superadmin')) {
-            $this->clinics = Clinic::orderBy('name')->get()->toArray();
+            // keep as Collection so Blade helpers like ->pluck() work
+            $this->clinics = Clinic::orderBy('name')->get();
         } elseif ($user->hasRole('admin')) {
-            $this->clinics = Clinic::where('organization_id', $user->organization_id)->orderBy('name')->get()->toArray();
+            $this->clinics = Clinic::where('organization_id', $user->organization_id)->orderBy('name')->get();
         } else {
-            $this->clinics = [];
+            $this->clinics = collect([]);
         }
     }
 
