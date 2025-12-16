@@ -91,7 +91,17 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Blood type</label>
-                        <input wire:model.defer="state.blood_type" type="text" class="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 @error('state.blood_type') border-red-400 bg-red-50 @enderror" />
+                        <select wire:model.defer="state.blood_type" class="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 @error('state.blood_type') border-red-400 bg-red-50 @enderror">
+                            <option value="">-- Select blood type --</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
                     </div>
 
                     <div>
