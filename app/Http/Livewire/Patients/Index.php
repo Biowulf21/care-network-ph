@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Http\Livewire\Concerns\HasSortableIndex;
 
 class Index extends Component
 {
     use WithPagination;
+    use HasSortableIndex;
 
     public $search = '';
 
@@ -34,6 +36,9 @@ class Index extends Component
         if ($this->search) {
             $query->where(fn ($q) => $q->where('first_name', 'like', "%{$this->search}%")->orWhere('last_name', 'like', "%{$this->search}%"));
         }
+
+        // Apply sortable ordering (defaults to created_at desc)
+        $this->applySort($query);
 
         return view('livewire.patients.index', ['patients' => $query->paginate(15)]);
     }

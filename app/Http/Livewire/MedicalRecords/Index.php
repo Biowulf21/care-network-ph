@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Http\Livewire\Concerns\HasSortableIndex;
 
 class Index extends Component
 {
     use WithPagination;
+    use HasSortableIndex;
 
     public $search = '';
 
@@ -34,8 +36,8 @@ class Index extends Component
             $query->where('doctor_notes', 'like', "%{$this->search}%");
         }
 
-        // newest first: prefer consultation_date, fall back to created_at
-        $query->orderByDesc('consultation_date')->orderByDesc('created_at');
+        // Apply sortable ordering (default comes from trait: created_at desc)
+        $this->applySort($query);
 
         return view('livewire.medical-records.index', ['records' => $query->paginate(15)]);
     }
