@@ -1,7 +1,7 @@
 <div class="p-6 max-w-7xl mx-auto">
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $record ? 'Edit Medical Record' : 'New Medical Record' }}</h1>
-        <a href="{{ route('medical-records.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">Back to Records</a>
+        <a href="{{ request()->query('patient') ? route('patients.profile', request()->query('patient')) : route('medical-records.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">{{ request()->query('patient') ? 'Back to Patient' : 'Back to Records' }}</a>
     </div>
 
     @if (session()->has('message'))
@@ -17,33 +17,26 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="patient_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Patient *</label>
-                        <x-searchable-dropdown :options="$patients->pluck('full_name','id')" placeholder="Select patient" wire:model="state.patient_id" id="patient_id" />
-                        @error('state.patient_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                    </div>
-                    <div>
-                        <label for="clinic_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Clinic *</label>
+                    <x-searchable-dropdown :options="$patients->pluck('full_name','id')" placeholder="Select patient" wire:model="state.patient_id" id="patient_id" :value="$state['patient_id'] ?? ''" />
                     @error('state.patient_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
+
                 <div>
                     <label for="clinic_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Clinic *</label>
-                        <x-searchable-dropdown :options="$clinics->pluck('name','id')" placeholder="Select clinic" wire:model="state.clinic_id" id="clinic_id" />
-                        @error('state.clinic_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                    </div>
-                    <div>
-                        <label for="encounter_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Encounter Type</label>
+                    <x-searchable-dropdown :options="$clinics->pluck('name','id')" placeholder="Select clinic" wire:model="state.clinic_id" id="clinic_id" :value="$state['clinic_id'] ?? ''" />
                     @error('state.clinic_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
+
                 <div>
                     <label for="consultation_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Consultation Date *</label>
                     <input type="date" wire:model="state.consultation_date" id="consultation_date" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
                     @error('state.consultation_date') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
+
                 <div>
                     <label for="encounter_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Encounter Type</label>
-                        <x-searchable-dropdown :options="['' => '--','consultation' => 'Consultation','follow_up' => 'Follow Up','telemedicine' => 'Telemedicine']" placeholder="Encounter type" wire:model="state.encounter_type" id="encounter_type" />
-                    </div>
-                    <div>
-                        <label for="disposition" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Disposition</label>
+                    <x-searchable-dropdown :options="['' => '--','consultation' => 'Consultation','follow_up' => 'Follow Up','telemedicine' => 'Telemedicine']" placeholder="Encounter type" wire:model="state.encounter_type" id="encounter_type" :value="$state['encounter_type'] ?? ''" />
+                    @error('state.encounter_type') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
             </div>
         </div>
@@ -135,11 +128,8 @@
                             </div>
                             <div>
                                 <label for="next_appointment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Next Appointment</label>
-                    </div>
-                    <div>
-                        <label for="next_appointment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Next Appointment</label>
-                        <input type="date" wire:model="state.next_appointment" id="next_appointment" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                    </div>
+                                <input type="date" wire:model="state.next_appointment" id="next_appointment" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            </div>
                 </div>
             </div>
         </div>
@@ -165,7 +155,7 @@
 
         <!-- Form Actions -->
         <div class="flex justify-end space-x-4">
-            <a href="{{ route('medical-records.index') }}" class="px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors">
+            <a href="{{ request()->query('patient') ? route('patients.profile', request()->query('patient')) : route('medical-records.index') }}" class="px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors">
                 Cancel
             </a>
             @if($record)

@@ -36,10 +36,39 @@ class Form extends Component
         'state.vital_signs' => 'nullable|array',
     ];
 
+    protected $validationAttributes = [
+        'state.patient_id' => 'patient',
+        'state.clinic_id' => 'clinic',
+        'state.consultation_date' => 'consultation date',
+        'state.chief_complaint' => 'chief complaint',
+        'state.history_present_illness' => 'history of present illness',
+        'state.physical_examination' => 'physical examination',
+        'state.diagnosis' => 'diagnosis',
+        'state.diagnosis_codes' => 'diagnosis codes',
+        'state.assessment_plan' => 'assessment and plan',
+        'state.treatment_plan' => 'treatment plan',
+        'state.next_appointment' => 'next appointment',
+        'state.encounter_type' => 'encounter type',
+        'state.doctor_notes' => 'doctor notes',
+        'state.provider_notes' => 'provider notes',
+        'state.philhealth_number' => 'PhilHealth number',
+        'state.vital_signs' => 'vital signs',
+    ];
+
     public function mount(?MedicalRecord $record = null)
     {
         $this->record = $record;
         $this->state = $record ? $record->toArray() : [];
+        // If the page was opened from a patient profile (e.g. ?patient=123), preselect that patient
+        $patientId = request()->query('patient');
+        if (! $this->record && $patientId) {
+            $this->state['patient_id'] = (int) $patientId;
+        }
+
+        // Default consultation date to today when creating
+        if (empty($this->state['consultation_date'])) {
+            $this->state['consultation_date'] = now()->format('Y-m-d');
+        }
     }
 
     public function save()
