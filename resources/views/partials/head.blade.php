@@ -30,3 +30,27 @@
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance
+
+<!-- If the user explicitly chose an appearance, prefer that value and restore it
+	 in `flux.appearance` in case other scripts removed it. This protects
+	 explicit user choices from being overwritten by transient 'system' resets. -->
+<script>
+	(function(){
+		try {
+			var userPref = window.localStorage.getItem('flux.appearance.user');
+			if (!userPref) return;
+
+			// restore the canonical key so other code depending on it sees the user choice
+			window.localStorage.setItem('flux.appearance', userPref);
+
+			var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+			if (userPref === 'dark' || (userPref === 'system' && prefersDark)) {
+				document.documentElement.classList.add('dark');
+			} else {
+				document.documentElement.classList.remove('dark');
+			}
+		} catch (e) {
+			// ignore
+		}
+	})();
+</script>
