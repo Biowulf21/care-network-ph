@@ -147,6 +147,17 @@ class Form extends Component
 
     public function render()
     {
+        // Ensure existing photo URL is available during render in case mount() ran earlier
+        if ($this->patient && empty($this->existingPhotoUrl) && ! empty($this->patient->photo)) {
+            $photoPath = $this->patient->photo;
+            // prefer public disk URL if file exists there
+            if (Storage::disk('public')->exists($photoPath)) {
+                $this->existingPhotoUrl = Storage::disk('public')->url($photoPath);
+            } else {
+                $this->existingPhotoUrl = Storage::url($photoPath);
+            }
+        }
+
         return view('livewire.patients.form');
     }
 

@@ -2,11 +2,28 @@
     <!-- Patient Header -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
         <div class="flex items-start space-x-6">
-            <div class="w-24 h-24 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
-            </div>
+                 @php
+                            $first = $state['first_name'] ?? optional($patient)->first_name ?? '';
+                            $last = $state['last_name'] ?? optional($patient)->last_name ?? '';
+                            $initials = trim((substr($first,0,1) ?? '') . (substr($last,0,1) ?? '')) ?: 'P';
+
+                            // compute a server-side photo URL that mirrors the public disk logic
+                            $serverPhotoUrl = null;
+                            //  <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::url($patient->photo) }}" alt="{{ $patient->full_name }}">
+                            if ($patient && $patient->photo) {
+                                $serverPhotoUrl = Storage::url($patient->photo);
+                            }
+                        @endphp
+
+                        <div class="h-20 w-20 rounded-full bg-blue-600 overflow-hidden flex items-center justify-center text-white text-2xl font-bold">
+                            @if(! empty($photo))
+                                <img src="{{ $photo->temporaryUrl() }}" alt="Photo" class="h-full w-full object-cover" />
+                            @elseif(! empty($serverPhotoUrl))
+                                <img src="{{ $serverPhotoUrl }}" alt="Photo" class="h-full w-full object-cover" />
+                            @else
+                                {{ strtoupper($initials) }}
+                            @endif
+                        </div>
             <div class="flex-1">
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $patient->full_name }}</h1>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">

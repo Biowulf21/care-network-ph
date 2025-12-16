@@ -3,16 +3,24 @@
         <div class="flex items-start gap-6 mb-6">
                 <div class="flex-shrink-0">
                     <div class="relative">
+                        @php
+                            $first = $state['first_name'] ?? optional($patient)->first_name ?? '';
+                            $last = $state['last_name'] ?? optional($patient)->last_name ?? '';
+                            $initials = trim((substr($first,0,1) ?? '') . (substr($last,0,1) ?? '')) ?: 'P';
+
+                            // compute a server-side photo URL that mirrors the public disk logic
+                            $serverPhotoUrl = null;
+                            //  <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::url($patient->photo) }}" alt="{{ $patient->full_name }}">
+                            if ($patient && $patient->photo) {
+                                $serverPhotoUrl = Storage::url($patient->photo);
+                            }
+                        @endphp
+
                         <div class="h-20 w-20 rounded-full bg-blue-600 overflow-hidden flex items-center justify-center text-white text-2xl font-bold">
-                            @php
-                                $first = $state['first_name'] ?? ($patient->first_name ?? '');
-                                $last = $state['last_name'] ?? ($patient->last_name ?? '');
-                                $initials = trim((substr($first,0,1) ?? '') . (substr($last,0,1) ?? '')) ?: 'P';
-                            @endphp
-                            @if($photo)
+                            @if(! empty($photo))
                                 <img src="{{ $photo->temporaryUrl() }}" alt="Photo" class="h-full w-full object-cover" />
-                            @elseif($existingPhotoUrl)
-                                <img src="{{ $existingPhotoUrl }}" alt="Photo" class="h-full w-full object-cover" />
+                            @elseif(! empty($serverPhotoUrl))
+                                <img src="{{ $serverPhotoUrl }}" alt="Photo" class="h-full w-full object-cover" />
                             @else
                                 {{ strtoupper($initials) }}
                             @endif

@@ -16,6 +16,26 @@ class Form extends Component
 
     protected $listeners = ['deleteRecord' => 'delete'];
 
+    protected $rules = [
+        'state.patient_id' => 'required|exists:patients,id',
+        'state.clinic_id' => 'required|exists:clinics,id',
+        'state.consultation_date' => 'nullable|date',
+        'state.chief_complaint' => 'nullable|string|max:500',
+        'state.history_present_illness' => 'nullable|string',
+        'state.physical_examination' => 'nullable|string',
+        'state.diagnosis' => 'nullable|string',
+        'state.diagnosis_codes' => 'nullable|string',
+        'state.assessment_plan' => 'nullable|string',
+        'state.treatment_plan' => 'nullable|string',
+        'state.disposition' => 'nullable|string',
+        'state.next_appointment' => 'nullable|date',
+        'state.encounter_type' => 'nullable|string',
+        'state.doctor_notes' => 'nullable|string',
+        'state.provider_notes' => 'nullable|string',
+        'state.philhealth_number' => 'nullable|string',
+        'state.vital_signs' => 'nullable|array',
+    ];
+
     public function mount(?MedicalRecord $record = null)
     {
         $this->record = $record;
@@ -24,25 +44,8 @@ class Form extends Component
 
     public function save()
     {
-        $this->validate([
-            'state.patient_id' => 'required|exists:patients,id',
-            'state.clinic_id' => 'required|exists:clinics,id',
-            'state.consultation_date' => 'nullable|date',
-            'state.chief_complaint' => 'nullable|string|max:500',
-            'state.history_present_illness' => 'nullable|string',
-            'state.physical_examination' => 'nullable|string',
-            'state.diagnosis' => 'nullable|string',
-            'state.diagnosis_codes' => 'nullable|string',
-            'state.assessment_plan' => 'nullable|string',
-            'state.treatment_plan' => 'nullable|string',
-            'state.disposition' => 'nullable|string',
-            'state.next_appointment' => 'nullable|date',
-            'state.encounter_type' => 'nullable|string',
-            'state.doctor_notes' => 'nullable|string',
-            'state.provider_notes' => 'nullable|string',
-            'state.philhealth_number' => 'nullable|string',
-            'state.vital_signs' => 'nullable|array',
-        ]);
+        $rules = $this->rules;
+        $this->validate($rules);
 
         $user = Auth::user();
 

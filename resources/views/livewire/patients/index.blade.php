@@ -32,9 +32,14 @@
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
+
+                                @if(empty($patient->photo))
                                     <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
                                         {{ strtoupper(substr($patient->first_name, 0, 1) . substr($patient->last_name, 0, 1)) }}
                                     </div>
+                                    @else
+                                    <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::url($patient->photo) }}" alt="{{ $patient->full_name }}">
+                                    @endif
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-gray-900">{{ $patient->full_name }}</div>
                                         @if($patient->patient_id)<div class="text-sm text-gray-500">ID: {{ $patient->patient_id }}</div>@endif
