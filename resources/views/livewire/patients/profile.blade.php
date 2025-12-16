@@ -1,4 +1,10 @@
 <div class="p-6">
+    <style>
+        /* Always show the vertical scrollbar to prevent layout shifts when content height changes */
+        html { overflow-y: scroll; scrollbar-gutter: stable; }
+        /* Smooth scrolling on supported browsers */
+        body { -webkit-overflow-scrolling: touch; }
+    </style>
     <!-- Patient Header -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
         <div class="flex items-start space-x-6">
@@ -29,84 +35,6 @@
                     <div>
                         <span class="text-sm text-gray-500 dark:text-gray-400">Patient ID</span>
                         <p class="font-semibold text-blue-600">{{ $patient->patient_id ?? 'N/A' }}</p>
-
-                    <script>
-                        // Global helper: ensure vitals chart is created when Livewire injects the vitals tab.
-                        (function () {
-                            let attempts = 0;
-                            const maxAttempts = 60; // ~6s of retries
-
-                            const tryCreate = () => {
-                                const el = document.getElementById('vitalsChart');
-                                if (!el) return false;
-
-                                try {
-                                    if (typeof Chart === 'undefined') {
-                                        console.debug('[global] Chart not yet available');
-                                        return false;
-                                    }
-
-                                    // If a Chart instance already exists, skip
-                                    if (Chart.getChart && Chart.getChart(el)) {
-                                        console.debug('[global] Chart instance already present');
-                                        return true;
-                                    }
-
-                                    const raw = el.getAttribute('data-vitals') || '{}';
-                                    const data = JSON.parse(raw || '{}');
-                                    const labels = data.dates || [];
-                                    const weights = data.weight || [];
-
-                                    if (!labels.length) {
-                                        console.debug('[global] no vitals labels to render');
-                                        return true;
-                                    }
-
-                                    const ctx = el.getContext('2d');
-                                    const created = new Chart(ctx, {
-                                        type: 'line',
-                                        data: {
-                                            labels: labels,
-                                            datasets: [{
-                                                label: 'Weight (kg)',
-                                                data: weights,
-                                                borderColor: 'rgb(59, 130, 246)',
-                                                backgroundColor: 'rgba(59, 130, 246, 0.08)',
-                                                fill: true,
-                                            }]
-                                        },
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            plugins: { legend: { position: 'top' } }
-                                        }
-                                    });
-
-                                    console.log('[global] vitals chart created', created);
-                                    return true;
-                                } catch (e) {
-                                    console.error('[global] error creating vitals chart', e);
-                                    return false;
-                                }
-                            };
-
-                            const attemptEnsure = () => {
-                                attempts += 1;
-                                const ok = tryCreate();
-                                if (ok) return;
-                                if (attempts >= maxAttempts) {
-                                    console.warn('[global] giving up creating vitals chart after', attempts, 'attempts');
-                                    return;
-                                }
-                                setTimeout(attemptEnsure, 100);
-                            };
-
-                            document.addEventListener('DOMContentLoaded', attemptEnsure);
-                            document.addEventListener('livewire:update', attemptEnsure);
-                            // run once immediately in case the element is already present
-                            setTimeout(attemptEnsure, 50);
-                        })();
-                    </script>
                     </div>
                     <div>
                         <span class="text-sm text-gray-500 dark:text-gray-400">Age</span>
@@ -144,12 +72,6 @@
                 Overview
             </button>
             <button 
-                wire:click="setActiveTab('vitals')"
-                class="py-2 px-1 border-b-2 font-medium text-sm {{ $activeTab === 'vitals' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
-            >
-                Recent Vitals
-            </button>
-            <button 
                 wire:click="setActiveTab('history')"
                 class="py-2 px-1 border-b-2 font-medium text-sm {{ $activeTab === 'history' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
             >
@@ -163,6 +85,8 @@
             </button>
         </nav>
     </div>
+
+    <div class="min-h-[420px]">
 
     @if($activeTab === 'overview')
         <!-- Overview Tab -->
@@ -396,4 +320,5 @@
             @endif
         </div>
     @endif
+    </div>
 </div>
