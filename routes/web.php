@@ -58,7 +58,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/patients/{patient}', \App\Livewire\Patients\Profile::class)->name('patients.profile');
     Route::get('/medical-records', \App\Http\Livewire\MedicalRecords\Index::class)->name('medical-records.index');
     Route::get('/medical-records/create', \App\Http\Livewire\MedicalRecords\Form::class)->name('medical-records.create');
+    Route::get('/medical-records/{record}', \App\Http\Livewire\MedicalRecords\Show::class)->name('medical-records.show');
     Route::get('/medical-records/{record}/edit', \App\Http\Livewire\MedicalRecords\Form::class)->name('medical-records.edit');
+    // Per-patient medical history viewer (with inline edit)
+    Route::get('/patients/{patient}/medical-history', \App\Http\Livewire\MedicalRecords\History::class)->name('patients.medical-history');
 
     // Appointment management
     Route::get('/appointments', \App\Livewire\Appointments\Index::class)->name('appointments.index');

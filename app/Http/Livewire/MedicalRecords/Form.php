@@ -13,6 +13,8 @@ class Form extends Component
     public ?MedicalRecord $record = null;
 
     public $state = [];
+    // prescriptions input as an array of lines: [['name'=>'Paracetamol','dosage'=>'500mg','quantity'=>"2","instructions"=>"..."], ...]
+    public $prescriptions = [];
 
     protected $listeners = ['deleteRecord' => 'delete'];
 
@@ -69,6 +71,25 @@ class Form extends Component
         if (empty($this->state['consultation_date'])) {
             $this->state['consultation_date'] = now()->format('Y-m-d');
         }
+
+        // load prescriptions from existing record if present
+        if ($this->record) {
+            // prefer relational prescriptions if available
+            if ($this->record->relationLoaded('prescriptions') || $this->record->prescriptions()->exists()) {
+                $this->prescriptions = $this->record->prescriptions()->with('items')->get()->map(function($p) {
+                    return $p->items->map(function($i) {
+                        return [
+                            'name' => $i->name,
+                            'dosage' => $i->dosage,
+                            'quantity' => $i->quantity,
+                            'instructions' => $i->instructions,
+                        ];
+                    })->toArray();
+                })->flatten(1)->toArray();
+            } elseif (! empty($this->state['prescriptions'])) {
+                $this->prescriptions = $this->state['prescriptions'];
+            }
+        }
     }
 
     public function save()
@@ -86,12 +107,66 @@ class Form extends Component
         if ($this->record) {
             $this->record->update($this->state);
             session()->flash('message', 'Medical record updated successfully.');
+            // Update prescriptions JSON on the record
+            $this->record->prescriptions = $this->prescriptions;
+            $this->record->save();
+            // Also sync to prescriptions table for integration
+            if (! empty($this->prescriptions)) {
+                // remove existing prescriptions and recreate
+                $this->record->prescriptions()->delete();
+                foreach ($this->prescriptions as $line) {
+                    $pres = \App\Models\Prescription::create([
+                        'medical_record_id' => $this->record->id,
+                        'patient_id' => $this->record->patient_id,
+                        'user_id' => $user->id,
+                        'notes' => null,
+                    ]);
+                    \App\Models\PrescriptionItem::create([
+                        'prescription_id' => $pres->id,
+                        'name' => $line['name'] ?? '',
+                        'dosage' => $line['dosage'] ?? null,
+                        'quantity' => $line['quantity'] ?? null,
+                        'instructions' => $line['instructions'] ?? null,
+                    ]);
+                }
+            }
         } else {
             $this->record = MedicalRecord::create(array_merge($this->state, ['user_id' => $user->id]));
             session()->flash('message', 'Medical record created successfully.');
+            // Save prescriptions JSON and create relational prescriptions
+            if (! empty($this->prescriptions)) {
+                $this->record->prescriptions = $this->prescriptions;
+                $this->record->save();
+                foreach ($this->prescriptions as $line) {
+                    $pres = \App\Models\Prescription::create([
+                        'medical_record_id' => $this->record->id,
+                        'patient_id' => $this->record->patient_id,
+                        'user_id' => $user->id,
+                        'notes' => null,
+                    ]);
+                    \App\Models\PrescriptionItem::create([
+                        'prescription_id' => $pres->id,
+                        'name' => $line['name'] ?? '',
+                        'dosage' => $line['dosage'] ?? null,
+                        'quantity' => $line['quantity'] ?? null,
+                        'instructions' => $line['instructions'] ?? null,
+                    ]);
+                }
+            }
         }
 
         return redirect()->route('medical-records.index');
+    }
+
+    public function addPrescriptionLine()
+    {
+        $this->prescriptions[] = ['name' => '', 'dosage' => '', 'quantity' => '', 'instructions' => ''];
+    }
+
+    public function removePrescriptionLine($index)
+    {
+        unset($this->prescriptions[$index]);
+        $this->prescriptions = array_values($this->prescriptions);
     }
 
     public function render()

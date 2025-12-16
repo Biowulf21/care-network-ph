@@ -11,6 +11,7 @@ class Profile extends Component
     public Patient $patient;
 
     public $activeTab = 'overview';
+    public $selectedRecordId = null;
 
     public function mount(Patient $patient)
     {
@@ -37,6 +38,37 @@ class Profile extends Component
         $this->activeTab = $tab;
     }
 
+    public function viewRecord(int $id)
+    {
+        $this->selectedRecordId = $id;
+        // ensure tab switches to history when viewing a specific record
+        $this->activeTab = 'history';
+    }
+
+    public function getSelectedRecordProperty()
+    {
+        return $this->selectedRecordId ? $this->patient->medicalRecords()->with('user','clinic','prescriptions.items')->find($this->selectedRecordId) : null;
+    }
+
+    /**
+     * Return prescriptions via the relation query to avoid attribute/relation name collision
+     * (MedicalRecord has a casted `prescriptions` attribute in the model).
+     */
+    public function getSelectedRecordPrescriptionsProperty()
+    {
+        if (! $this->selectedRecordId) {
+            return collect();
+        }
+
+        $record = $this->patient->medicalRecords()->find($this->selectedRecordId);
+
+        if (! $record) {
+            return collect();
+        }
+
+        return $record->prescriptions()->with('items')->get();
+    }
+
     public function getRecentRecordsProperty()
     {
         return $this->patient->medicalRecords()
@@ -52,9 +84,7 @@ class Profile extends Component
             ->whereNotNull('vitals')
             ->latest('consultation_date')
             ->limit(10)
-            ->get()
-            ->pluck('vitals')
-            ->filter();
+            ->get();
     }
 
     public function getUpcomingAppointmentsProperty()

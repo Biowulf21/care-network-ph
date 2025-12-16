@@ -2,14 +2,13 @@
     <!-- Patient Header -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
         <div class="flex items-start space-x-6">
-                 @php
+                        @php
                             $first = $state['first_name'] ?? optional($patient)->first_name ?? '';
                             $last = $state['last_name'] ?? optional($patient)->last_name ?? '';
                             $initials = trim((substr($first,0,1) ?? '') . (substr($last,0,1) ?? '')) ?: 'P';
 
                             // compute a server-side photo URL that mirrors the public disk logic
                             $serverPhotoUrl = null;
-                            //  <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::url($patient->photo) }}" alt="{{ $patient->full_name }}">
                             if ($patient && $patient->photo) {
                                 $serverPhotoUrl = Storage::url($patient->photo);
                             }
@@ -30,6 +29,84 @@
                     <div>
                         <span class="text-sm text-gray-500 dark:text-gray-400">Patient ID</span>
                         <p class="font-semibold text-blue-600">{{ $patient->patient_id ?? 'N/A' }}</p>
+
+                    <script>
+                        // Global helper: ensure vitals chart is created when Livewire injects the vitals tab.
+                        (function () {
+                            let attempts = 0;
+                            const maxAttempts = 60; // ~6s of retries
+
+                            const tryCreate = () => {
+                                const el = document.getElementById('vitalsChart');
+                                if (!el) return false;
+
+                                try {
+                                    if (typeof Chart === 'undefined') {
+                                        console.debug('[global] Chart not yet available');
+                                        return false;
+                                    }
+
+                                    // If a Chart instance already exists, skip
+                                    if (Chart.getChart && Chart.getChart(el)) {
+                                        console.debug('[global] Chart instance already present');
+                                        return true;
+                                    }
+
+                                    const raw = el.getAttribute('data-vitals') || '{}';
+                                    const data = JSON.parse(raw || '{}');
+                                    const labels = data.dates || [];
+                                    const weights = data.weight || [];
+
+                                    if (!labels.length) {
+                                        console.debug('[global] no vitals labels to render');
+                                        return true;
+                                    }
+
+                                    const ctx = el.getContext('2d');
+                                    const created = new Chart(ctx, {
+                                        type: 'line',
+                                        data: {
+                                            labels: labels,
+                                            datasets: [{
+                                                label: 'Weight (kg)',
+                                                data: weights,
+                                                borderColor: 'rgb(59, 130, 246)',
+                                                backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                                                fill: true,
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: { legend: { position: 'top' } }
+                                        }
+                                    });
+
+                                    console.log('[global] vitals chart created', created);
+                                    return true;
+                                } catch (e) {
+                                    console.error('[global] error creating vitals chart', e);
+                                    return false;
+                                }
+                            };
+
+                            const attemptEnsure = () => {
+                                attempts += 1;
+                                const ok = tryCreate();
+                                if (ok) return;
+                                if (attempts >= maxAttempts) {
+                                    console.warn('[global] giving up creating vitals chart after', attempts, 'attempts');
+                                    return;
+                                }
+                                setTimeout(attemptEnsure, 100);
+                            };
+
+                            document.addEventListener('DOMContentLoaded', attemptEnsure);
+                            document.addEventListener('livewire:update', attemptEnsure);
+                            // run once immediately in case the element is already present
+                            setTimeout(attemptEnsure, 50);
+                        })();
+                    </script>
                     </div>
                     <div>
                         <span class="text-sm text-gray-500 dark:text-gray-400">Age</span>
@@ -144,15 +221,15 @@
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Vitals</h3>
                 @if($this->recentVitals->count())
-                    @php $latestVitals = $this->recentVitals->first() @endphp
+                    @php $latestRecord = $this->recentVitals->first(); $lv = $latestRecord->vitals ?? []; @endphp
                     <div class="space-y-3">
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-500">Weight (kg)</span>
-                            <span class="font-medium">{{ $latestVitals['weight'] ?? 'n/a' }}</span>
+                            <span class="font-medium">{{ $lv['weight'] ?? $lv['w'] ?? 'n/a' }}</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-500">Temp (°C)</span>
-                            <span class="font-medium">{{ $latestVitals['temp'] ?? 'n/a' }}</span>
+                            <span class="font-medium">{{ $lv['temperature'] ?? $lv['temp'] ?? 'n/a' }}</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-500">Blood Type</span>
@@ -160,11 +237,11 @@
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-500">HR (bpm)</span>
-                            <span class="font-medium">{{ $latestVitals['hr'] ?? 'n/a' }}</span>
+                            <span class="font-medium">{{ $lv['heart_rate'] ?? $lv['hr'] ?? 'n/a' }}</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-500">BP (mmHg)</span>
-                            <span class="font-medium">{{ $latestVitals['bp'] ?? 'n/a' }}</span>
+                            <span class="font-medium">{{ $lv['blood_pressure'] ?? $lv['bp'] ?? 'n/a' }}</span>
                         </div>
                     </div>
                 @else
@@ -181,9 +258,9 @@
             
             @if(count($this->vitalsChartData['dates']) > 0)
                 <div class="chart-responsive mb-6">
-                    <canvas id="vitalsChart" width="400" height="200"></canvas>
+                    <canvas id="vitalsChart" width="400" height="200" data-vitals='@json($this->vitalsChartData)'></canvas>
                 </div>
-                
+
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         const ctx = document.getElementById('vitalsChart').getContext('2d');
@@ -205,6 +282,11 @@
                                         position: 'top',
                                     },
                                 }
+                                return;
+                            }
+
+                            if (attempts % 5 === 0) {
+                                console.debug('[inline] waiting for Chart to load, attempt', attempts);
                             }
                         });
                     });
@@ -236,6 +318,9 @@
                                 Dr. {{ $record->user->name ?? 'Unknown' }}
                             </span>
                         </div>
+                        <div class="mt-2 text-right">
+                            <a href="{{ route('medical-records.show', $record) }}" class="px-2 py-1 text-sm bg-blue-100 text-blue-700 rounded">View</a>
+                        </div>
                         
                         @if($record->chief_complaint)
                             <p class="mt-2 text-sm"><strong>Chief Complaint:</strong> {{ $record->chief_complaint }}</p>
@@ -250,6 +335,26 @@
                         @endif
                     </div>
                 @endforeach
+                @if($this->selectedRecord)
+                    <div class="mt-6 bg-gray-50 border rounded p-4">
+                        <h4 class="font-semibold">Record Details — {{ $this->selectedRecord->consultation_date?->format('M d, Y') }}</h4>
+                        <p class="text-sm mt-2"><strong>Chief Complaint:</strong> {{ $this->selectedRecord->chief_complaint }}</p>
+                        <p class="text-sm mt-2"><strong>Diagnosis:</strong> {{ $this->selectedRecord->diagnosis }}</p>
+                        <p class="text-sm mt-2"><strong>Treatment:</strong> {{ $this->selectedRecord->treatment_plan }}</p>
+                        @if($this->selectedRecordPrescriptions->count())
+                            <div class="mt-3">
+                                <h5 class="font-medium">Prescriptions</h5>
+                                <ul class="list-disc pl-5">
+                                    @foreach($this->selectedRecordPrescriptions as $pres)
+                                        @foreach($pres->items as $item)
+                                            <li>{{ $item->name }} — {{ $item->dosage }} ({{ $item->quantity }}) @if($item->instructions) — {{ $item->instructions }} @endif</li>
+                                        @endforeach
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    </div>
+                @endif
             </div>
         </div>
     @endif
@@ -258,7 +363,37 @@
         <!-- Prescriptions Tab -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Prescription History</h3>
-            <p class="text-gray-500 dark:text-gray-400">Prescription functionality coming soon...</p>
+            @php $records = $this->prescriptionHistory; @endphp
+
+            @if($records->isNotEmpty())
+                <div class="space-y-4">
+                    @foreach($records as $r)
+                        @php $presList = $r->prescriptions()->with('items')->get(); @endphp
+                        @foreach($presList as $pres)
+                            <div class="p-4 bg-white rounded shadow-sm">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <div class="font-medium">Prescription #{{ $pres->id }}</div>
+                                        <div class="text-sm text-gray-500">Record: {{ $r->consultation_date?->format('M d, Y') }}</div>
+                                    </div>
+                                    <div>
+                                        @if($r->id)
+                                            <a href="{{ route('medical-records.show', $r) }}" class="text-sm text-blue-600">View record</a>
+                                        @endif
+                                    </div>
+                                </div>
+                                <ul class="list-disc pl-5 mt-3">
+                                    @foreach($pres->items as $item)
+                                        <li>{{ $item->name }} — {{ $item->dosage }} — {{ $item->quantity }} @if($item->instructions) ({{ $item->instructions }}) @endif</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endforeach
+                    @endforeach
+                </div>
+            @else
+                <p class="text-gray-500 dark:text-gray-400">No prescriptions recorded.</p>
+            @endif
         </div>
     @endif
 </div>

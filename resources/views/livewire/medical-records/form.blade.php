@@ -154,6 +154,39 @@
         </div>
 
         <!-- Form Actions -->
+        <!-- Prescriptions -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Prescriptions</h2>
+            <div class="space-y-3">
+                <template wire:ignore>
+                    <!-- Livewire will render the dynamic rows below -->
+                </template>
+
+                @foreach($prescriptions as $i => $line)
+                    <div class="grid grid-cols-12 gap-2 items-center">
+                        <div class="col-span-5">
+                            <input type="text" wire:model.defer="prescriptions.{{ $i }}.name" placeholder="Medicine name" class="w-full rounded-md border px-3 py-2" />
+                        </div>
+                        <div class="col-span-2">
+                            <input type="text" wire:model.defer="prescriptions.{{ $i }}.dosage" placeholder="Dosage" class="w-full rounded-md border px-3 py-2" />
+                        </div>
+                        <div class="col-span-2">
+                            <input type="text" wire:model.defer="prescriptions.{{ $i }}.quantity" placeholder="Qty" class="w-full rounded-md border px-3 py-2" />
+                        </div>
+                        <div class="col-span-2">
+                            <input type="text" wire:model.defer="prescriptions.{{ $i }}.instructions" placeholder="Instructions" class="w-full rounded-md border px-3 py-2" />
+                        </div>
+                        <div class="col-span-1 text-right">
+                            <button type="button" wire:click.prevent="removePrescriptionLine({{ $i }})" class="text-red-600">Remove</button>
+                        </div>
+                    </div>
+                @endforeach
+
+                <div>
+                    <button type="button" wire:click.prevent="addPrescriptionLine" class="px-3 py-2 bg-green-600 text-white rounded">Add Prescription</button>
+                </div>
+            </div>
+        </div>
         <div class="flex justify-end space-x-4">
             <a href="{{ request()->query('patient') ? route('patients.profile', request()->query('patient')) : route('medical-records.index') }}" class="px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors">
                 Cancel
