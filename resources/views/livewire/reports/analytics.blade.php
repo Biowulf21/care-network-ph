@@ -4,7 +4,16 @@
 
         <div class="mt-4 sm:mt-0 flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-3 sm:space-y-0">
             <!-- Date Range Filter -->
-            <x-searchable-dropdown :options="['7' => 'Last 7 Days','30' => 'Last 30 Days','90' => 'Last 90 Days','365' => 'Last Year','ytd' => 'Year to Date']" placeholder="Date range" wire:model.live="dateRange" />
+            <div>
+                <label for="dateRange" class="sr-only">Date range</label>
+                <select id="dateRange" wire:model.live="dateRange" class="px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30">Last 30 Days</option>
+                    <option value="90">Last 90 Days</option>
+                    <option value="365">Last Year</option>
+                    <option value="ytd">Year to Date</option>
+                </select>
+            </div>
 
             <!-- Organization Filter (superadmin only) -->
             @if(Auth::user()->hasRole('superadmin') && count($organizations) > 0)
