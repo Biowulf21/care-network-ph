@@ -55,6 +55,8 @@ document.addEventListener("livewire:load", function () {
 function initializeCharts() {
     // Check for analytics page charts
     const chartDataElement = document.getElementById("reports-chart-data");
+    // Ensure Chart.js global theme is applied for current (light/dark) mode
+    applyChartTheme();
     if (chartDataElement) {
         initAnalyticsCharts(chartDataElement);
     }
@@ -225,6 +227,30 @@ function getDefaultOptions(additionalOptions = {}) {
         },
         ...additionalOptions,
     };
+}
+
+// Apply chart.js-wide theme defaults so all charts inherit correct colors
+function applyChartTheme() {
+    const colors = getChartColors();
+
+    if (typeof Chart === 'undefined') return;
+
+    // Global default text color and font
+    Chart.defaults.color = colors.text;
+    Chart.defaults.font = Chart.defaults.font || {};
+    Chart.defaults.font.family = Chart.defaults.font.family || 'Inter, system-ui, sans-serif';
+
+    // Legend label color
+    Chart.defaults.plugins = Chart.defaults.plugins || {};
+    Chart.defaults.plugins.legend = Chart.defaults.plugins.legend || {};
+    Chart.defaults.plugins.legend.labels = Chart.defaults.plugins.legend.labels || {};
+    Chart.defaults.plugins.legend.labels.color = colors.text;
+
+    // Tooltip colors
+    Chart.defaults.plugins.tooltip = Chart.defaults.plugins.tooltip || {};
+    Chart.defaults.plugins.tooltip.backgroundColor = colors.background;
+    Chart.defaults.plugins.tooltip.titleColor = colors.text;
+    Chart.defaults.plugins.tooltip.bodyColor = colors.text;
 }
 
 /**
