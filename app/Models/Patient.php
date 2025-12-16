@@ -61,6 +61,19 @@ class Patient extends Model
         return $this->hasMany(Appointment::class);
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (Patient $patient) {
+            if (empty($patient->patient_id)) {
+                do {
+                    $candidate = 'P' . now()->format('Ymd') . str_pad((string) mt_rand(0, 99999), 5, '0', STR_PAD_LEFT);
+                } while (self::where('patient_id', $candidate)->exists());
+
+                $patient->patient_id = $candidate;
+            }
+        });
+    }
+
     public function getFullNameAttribute()
     {
         return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");

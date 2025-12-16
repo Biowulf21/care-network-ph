@@ -31,14 +31,14 @@ class Form extends Component
         'state.first_name' => 'required|string|max:255',
         'state.last_name' => 'required|string|max:255',
         'state.middle_name' => 'nullable|string|max:255',
-        'state.date_of_birth' => 'required|nullable|date',
+        'state.date_of_birth' => 'required|date',
         'state.sex' => 'required|string',
         'state.phone' => 'required|string|max:50',
         'state.email' => 'nullable|email|max:255',
         'state.address' => 'required|string',
-        'state.city' => 'required|string|max:255',
-        'state.province' => 'required|string|max:255',
-        'state.zip_code' => 'required|string|max:20',
+        'state.city' => 'nullable|string|max:255',
+        'state.province' => 'nullable|string|max:255',
+        'state.zip_code' => 'nullable|string|max:20',
         'state.blood_type' => 'nullable|string|max:5',
         'state.height' => 'nullable|numeric',
         'state.weight' => 'nullable|numeric',
@@ -65,6 +65,16 @@ class Form extends Component
         $this->patient = $patient;
         $this->state = $patient ? $patient->toArray() : [];
 
+        // Ensure date_of_birth is prefilled in `Y-m-d` format for <input type="date"> elements
+        if (! empty($this->state['date_of_birth'])) {
+            $this->state['date_of_birth'] = optional($patient->date_of_birth)->format('Y-m-d');
+        }
+
+        // Backwards-compat: if `sex` is empty but `gender` is present, prefer `gender` value
+        if (empty($this->state['sex']) && ! empty($this->state['gender'])) {
+            $this->state['sex'] = $this->state['gender'];
+        }
+
         $user = Auth::user();
         // Provide clinics list for admin / superadmin so they can pick where patient belongs
         if ($user->hasRole('superadmin')) {
@@ -77,7 +87,17 @@ class Form extends Component
         }
 
         // existing photo URL for preview
-        $this->existingPhotoUrl = $this->patient && $this->patient->photo ? Storage::url($this->patient->photo) : null;
+        $this->existingPhotoUrl = null;
+        if ($this->patient && ! empty($this->patient->photo)) {
+            $photoPath = $this->patient->photo;
+            // prefer public disk URL if file exists there
+            if (Storage::disk('public')->exists($photoPath)) {
+                $this->existingPhotoUrl = Storage::disk('public')->url($photoPath);
+            } else {
+                // fallback to default Storage::url (handles other disks)
+                $this->existingPhotoUrl = Storage::url($photoPath);
+            }
+        }
     }
 
     public function save()

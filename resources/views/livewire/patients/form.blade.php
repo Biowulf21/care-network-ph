@@ -77,7 +77,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Sex</label>
-                        <x-searchable-dropdown :options="['Male' => 'Male','Female' => 'Female','Other' => 'Other']" placeholder="Sex" wire:model="state.sex" />
+                        <x-searchable-dropdown :options="['Male' => 'Male','Female' => 'Female','Other' => 'Other']" placeholder="Sex" wire:model="state.sex" value="{{ $state['sex'] ?? ($patient->sex ?? '') }}" />
                         @error('state.sex') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
                     </div>
 
@@ -119,7 +119,7 @@
                         <div class="mt-1 p-2 bg-gray-50 rounded">{{ optional(auth()->user()->clinic)->name ?? 'Assigned clinic' }}</div>
                     @else
                         <label class="block text-sm font-medium text-gray-700">Clinic</label>
-                        <x-searchable-dropdown :options="$clinics->pluck('name','id')->toArray()" placeholder="Clinic" wire:model="state.clinic_id" />
+                        <x-searchable-dropdown :options="$clinics->pluck('name','id')->toArray()" placeholder="Clinic" wire:model="state.clinic_id" value="{{ $state['clinic_id'] ?? ($patient->clinic_id ?? '') }}" />
                         @error('state.clinic_id') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
                     @endif
                 </div>

@@ -17,11 +17,16 @@
     }
 @endphp
 
+@php
+    // server-provided initial value (if passed via `value` attribute)
+    $initialValue = $attributes->get('value') ?? '';
+@endphp
+
 <div x-data="{
         open: false,
         query: '',
         selectedLabel: null,
-        selectedValue: null,
+        selectedValue: '{{ addslashes($initialValue) }}',
         optionsMap: {},
         boundModel: '{{ addslashes($modelAttr ?? '') }}',
         get filtered() {
@@ -31,7 +36,17 @@
             return entries.filter(([k, v]) => v.toLowerCase().includes(this.query.toLowerCase()));
         }
     }"
-    x-init="optionsMap = {{ json_encode($options) }}; $nextTick(() => { const v = $refs.hidden?.value; if (v) { selectedValue = v; selectedLabel = optionsMap[v] ?? v; query = selectedLabel; } }); $watch('selectedValue', (v)=>{ if($refs.hidden) { $refs.hidden.value = v ?? ''; $refs.hidden.dispatchEvent(new InputEvent('input',{bubbles:true,composed:true})); $refs.hidden.dispatchEvent(new Event('change',{bubbles:true,composed:true})); if (this.boundModel && typeof $wire !== 'undefined') { $wire.set(this.boundModel, v); } } })"
+    x-init="optionsMap = {{ json_encode($options) }}; $nextTick(() => {
+            // prefer explicit server-provided value, otherwise fall back to hidden input's value
+            if (selectedValue) {
+                selectedLabel = optionsMap[selectedValue] ?? selectedValue;
+                query = selectedLabel;
+            } else {
+                const v = $refs.hidden?.value;
+                if (v) { selectedValue = v; selectedLabel = optionsMap[v] ?? v; query = selectedLabel; }
+            }
+        });
+        $watch('selectedValue', (v)=>{ if($refs.hidden) { $refs.hidden.value = v ?? ''; $refs.hidden.dispatchEvent(new InputEvent('input',{bubbles:true,composed:true})); $refs.hidden.dispatchEvent(new Event('change',{bubbles:true,composed:true})); if (this.boundModel && typeof $wire !== 'undefined') { $wire.set(this.boundModel, v); } } })"
     class="relative">
 
     <!-- Hidden input bound to Livewire via forwarded wire:* attributes -->
