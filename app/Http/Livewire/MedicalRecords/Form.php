@@ -32,6 +32,7 @@ class Form extends Component
         'state.disposition' => 'nullable|string',
         'state.next_appointment' => 'nullable|date',
         'state.encounter_type' => 'nullable|string',
+        'state.doctor_id' => 'nullable|exists:doctors,id',
         'state.doctor_notes' => 'nullable|string',
         'state.provider_notes' => 'nullable|string',
         'state.philhealth_number' => 'nullable|string',
@@ -180,9 +181,20 @@ class Form extends Component
             $clinics = Clinic::orderBy('name')->get();
         }
 
+        // doctors filter: if clinic selected, only show doctors for that clinic. Delegates see their clinic docs.
+        $doctorsQuery = \App\Models\Doctor::query();
+        if (! empty($this->state['clinic_id'])) {
+            $doctorsQuery->where('clinic_id', $this->state['clinic_id']);
+        } elseif ($user->hasRole('delegate')) {
+            $doctorsQuery->where('clinic_id', $user->clinic_id);
+        }
+
+        $doctors = $doctorsQuery->orderBy('name')->get();
+
         return view('livewire.medical-records.form', [
             'patients' => $patients,
             'clinics' => $clinics,
+            'doctors' => $doctors,
         ]);
     }
 

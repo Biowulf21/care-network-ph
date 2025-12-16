@@ -118,7 +118,7 @@
                             </div>
                             <div>
                                 <span class="text-sm text-gray-500 dark:text-gray-400">Attending Physician</span>
-                                <p class="font-medium">{{ $latestRecord->user->name ?? 'N/A' }}</p>
+                                <p class="font-medium">{{ $latestRecord->doctor->name ?? $latestRecord->user->name ?? 'N/A' }}</p>
                             </div>
                         </div>
                         
@@ -275,6 +275,9 @@
                                         @endforeach
                                     @endforeach
                                 </ul>
+                                <div class="mt-4">
+                                    <a href="{{ route('medical-records.prescription', $this->selectedRecord) }}" target="_blank" class="px-3 py-2 bg-blue-600 text-white rounded">Print Prescription</a>
+                                </div>
                             </div>
                         @endif
                     </div>

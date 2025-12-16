@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             RolesSeeder::class,
             OrganizationsSeeder::class,
             ClinicsSeeder::class,
+            DoctorsSeeder::class,
             UsersSeeder::class,
             PatientsSeeder::class,
             MedicalRecordsSeeder::class,

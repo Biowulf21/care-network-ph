@@ -11,11 +11,13 @@ class OrganizationFactory extends Factory
 
     public function definition(): array
     {
+        $faker = $this->faker;
+
         return [
-            'name' => $this->faker->company,
-            'code' => strtoupper($this->faker->bothify('ORG###')),
-            'address' => $this->faker->address,
-            'phone' => $this->faker->phoneNumber,
+            'name' => $faker->company,
+            'code' => strtoupper($faker->unique()->bothify('ORG###')),
+            'address' => $faker->address,
+            'phone' => $faker->phoneNumber,
         ];
     }
 }

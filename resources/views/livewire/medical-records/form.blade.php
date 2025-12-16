@@ -28,6 +28,12 @@
                 </div>
 
                 <div>
+                    <label for="doctor_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Attending Physician</label>
+                    <x-searchable-dropdown :options="$doctors->pluck('name','id')" placeholder="Select doctor" wire:model="state.doctor_id" id="doctor_id" :value="$state['doctor_id'] ?? ''" />
+                    @error('state.doctor_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
                     <label for="consultation_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Consultation Date *</label>
                     <input type="date" wire:model="state.consultation_date" id="consultation_date" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
                     @error('state.consultation_date') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror

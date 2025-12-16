@@ -6,6 +6,7 @@ use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\TwoFactor;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
+use App\Models\MedicalRecord;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -69,4 +70,21 @@ Route::middleware(['auth'])->group(function () {
 
     // Reports and analytics
     Route::get('/reports', \App\Livewire\Reports\Analytics::class)->name('reports.analytics');
+});
+
+// Printable prescription route
+Route::get('/medical-records/{record}/prescription', function (MedicalRecord $record) {
+    // simple auth check
+    if (! auth()->check()) {
+        abort(403);
+    }
+
+    return view('prescriptions.print', ['record' => $record]);
+})->middleware('auth')->name('medical-records.prescription');
+
+// Doctors CRUD (separate auth group to avoid editing the main block)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/doctors', \App\Http\Livewire\Doctors\Index::class)->name('doctors.index');
+    Route::get('/doctors/create', \App\Http\Livewire\Doctors\Form::class)->name('doctors.create');
+    Route::get('/doctors/{doctor}/edit', \App\Http\Livewire\Doctors\Form::class)->name('doctors.edit');
 });

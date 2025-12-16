@@ -12,12 +12,14 @@ class ClinicFactory extends Factory
 
     public function definition(): array
     {
+        $faker = $this->faker;
+
         return [
             'organization_id' => Organization::factory(),
-            'name' => $this->faker->company.' Clinic',
-            'code' => strtoupper($this->faker->bothify('CLN###')),
-            'address' => $this->faker->address,
-            'phone' => $this->faker->phoneNumber,
+            'name' => $faker->company.' Clinic',
+            'code' => strtoupper($faker->unique()->bothify('CLN###')),
+            'address' => $faker->address,
+            'phone' => $faker->phoneNumber,
         ];
     }
 }

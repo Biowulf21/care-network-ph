@@ -10,7 +10,7 @@ class MedicalRecord extends Model
     use HasFactory;
 
     protected $fillable = [
-        'patient_id', 'clinic_id', 'user_id', 'consultation_date', 'vitals', 'doctor_notes', 'diagnosis', 'treatment_plan', 'medical_history', 'philhealth', 'documents_checklist', 'admission', 'discharge',
+        'patient_id', 'clinic_id', 'user_id', 'doctor_id', 'consultation_date', 'vitals', 'doctor_notes', 'diagnosis', 'treatment_plan', 'medical_history', 'philhealth', 'documents_checklist', 'admission', 'discharge',
         // Enhanced clinical fields
         'emar_data', 'chief_complaint', 'history_present_illness', 'physical_examination', 'assessment_plan', 'prescriptions', 'disposition', 'encounter_type', 'consultation_type', 'allergies', 'family_history', 'immunization_history', 'social_history', 'next_appointment', 'provider_notes', 'diagnosis_codes',
     ];
@@ -50,5 +50,10 @@ class MedicalRecord extends Model
     public function prescriptions()
     {
         return $this->hasMany(Prescription::class);
+    }
+
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class);
     }
 }
