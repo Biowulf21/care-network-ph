@@ -51,6 +51,15 @@ class AppServiceProvider extends ServiceProvider
             Livewire::component('app.http.livewire.organizations.form', \App\Http\Livewire\Organizations\Form::class);
         }
 
+        if (class_exists(\App\Http\Livewire\Doctors\Form::class)) {
+            Livewire::component('doctors.form', \App\Http\Livewire\Doctors\Form::class);
+            Livewire::component('app.http.livewire.doctors.form', \App\Http\Livewire\Doctors\Form::class);
+        }
+
+        if (class_exists(\App\Http\Livewire\Doctors\Index::class)) {
+            Livewire::component('doctors.index', \App\Http\Livewire\Doctors\Index::class);
+        }
+
         if (class_exists(\App\Http\Livewire\Organizations\Index::class)) {
             Livewire::component('organizations.index', \App\Http\Livewire\Organizations\Index::class);
         }

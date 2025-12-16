@@ -22,11 +22,13 @@
                             <flux:navlist.item icon="users" :href="route('users.index')" :current="request()->routeIs('users*')" wire:navigate>{{ __('Users') }}</flux:navlist.item>
                             <flux:navlist.item icon="building-office" :href="route('organizations.index')" :current="request()->routeIs('organizations*')" wire:navigate>{{ __('Organizations') }}</flux:navlist.item>
                             <flux:navlist.item icon="map" :href="route('clinics.index')" :current="request()->routeIs('clinics*')" wire:navigate>{{ __('Clinics') }}</flux:navlist.item>
+                            <flux:navlist.item icon="users" :href="route('doctors.index')" :current="request()->routeIs('doctors*')" wire:navigate>{{ __('Doctors') }}</flux:navlist.item>
                             <flux:navlist.item icon="calendar" :href="route('appointments.calendar')" :current="request()->routeIs('appointments*')" wire:navigate>{{ __('Appointments') }}</flux:navlist.item>
                             <flux:navlist.item icon="chart-bar" :href="route('reports.analytics')" :current="request()->routeIs('reports*')" wire:navigate>{{ __('Reports') }}</flux:navlist.item>
                         @elseif($user->hasRole('admin'))
                             <flux:navlist.item icon="building-office" :href="route('organizations.index')" :current="request()->routeIs('organizations*')" wire:navigate>{{ __('Organization') }}</flux:navlist.item>
                             <flux:navlist.item icon="map" :href="route('clinics.index')" :current="request()->routeIs('clinics*')" wire:navigate>{{ __('Clinics') }}</flux:navlist.item>
+                            <flux:navlist.item icon="users" :href="route('doctors.index')" :current="request()->routeIs('doctors*')" wire:navigate>{{ __('Doctors') }}</flux:navlist.item>
                             <flux:navlist.item icon="users" :href="route('patients.index')" :current="request()->routeIs('patients*')" wire:navigate>{{ __('Patients') }}</flux:navlist.item>
                             <flux:navlist.item icon="calendar" :href="route('appointments.calendar')" :current="request()->routeIs('appointments*')" wire:navigate>{{ __('Appointments') }}</flux:navlist.item>
                             <flux:navlist.item icon="chart-bar" :href="route('reports.analytics')" :current="request()->routeIs('reports*')" wire:navigate>{{ __('Reports') }}</flux:navlist.item>
