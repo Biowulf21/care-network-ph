@@ -62,12 +62,8 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Sex</label>
-                        <select wire:model.defer="state.sex" class="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 @error('state.sex') border-red-400 bg-red-50 @enderror">
-                            <option value="">Select</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
+                        <x-searchable-dropdown :options="['Male' => 'Male','Female' => 'Female','Other' => 'Other']" placeholder="Sex" wire:model.defer="state.sex" />
+                        @error('state.sex') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
@@ -107,12 +103,7 @@
                         <div class="mt-1 p-2 bg-gray-50 rounded">{{ optional(auth()->user()->clinic)->name ?? 'Assigned clinic' }}</div>
                     @else
                         <label class="block text-sm font-medium text-gray-700">Clinic</label>
-                        <select wire:model.defer="state.clinic_id" class="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 @error('state.clinic_id') border-red-400 bg-red-50 @enderror">
-                            <option value="">Select clinic</option>
-                            @foreach($clinics as $clinic)
-                                <option value="{{ $clinic['id'] }}">{{ $clinic['name'] }}</option>
-                            @endforeach
-                        </select>
+                        <x-searchable-dropdown :options="$clinics->pluck('name','id')" placeholder="Clinic" wire:model.defer="state.clinic_id" />
                         @error('state.clinic_id') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
                     @endif
                 </div>

@@ -233,17 +233,19 @@ function getDefaultOptions(additionalOptions = {}) {
 function applyChartTheme() {
     const colors = getChartColors();
 
-    if (typeof Chart === 'undefined') return;
+    if (typeof Chart === "undefined") return;
 
     // Global default text color and font
     Chart.defaults.color = colors.text;
     Chart.defaults.font = Chart.defaults.font || {};
-    Chart.defaults.font.family = Chart.defaults.font.family || 'Inter, system-ui, sans-serif';
+    Chart.defaults.font.family =
+        Chart.defaults.font.family || "Inter, system-ui, sans-serif";
 
     // Legend label color
     Chart.defaults.plugins = Chart.defaults.plugins || {};
     Chart.defaults.plugins.legend = Chart.defaults.plugins.legend || {};
-    Chart.defaults.plugins.legend.labels = Chart.defaults.plugins.legend.labels || {};
+    Chart.defaults.plugins.legend.labels =
+        Chart.defaults.plugins.legend.labels || {};
     Chart.defaults.plugins.legend.labels.color = colors.text;
 
     // Tooltip colors

@@ -4,32 +4,16 @@
 
         <div class="mt-4 sm:mt-0 flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-3 sm:space-y-0">
             <!-- Date Range Filter -->
-            <select wire:model.live="dateRange" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                <option value="7">Last 7 Days</option>
-                <option value="30">Last 30 Days</option>
-                <option value="90">Last 90 Days</option>
-                <option value="365">Last Year</option>
-                <option value="ytd">Year to Date</option>
-            </select>
+            <x-searchable-dropdown :options="['7' => 'Last 7 Days','30' => 'Last 30 Days','90' => 'Last 90 Days','365' => 'Last Year','ytd' => 'Year to Date']" placeholder="Date range" wire:model.live="dateRange" />
 
             <!-- Organization Filter (superadmin only) -->
             @if(Auth::user()->hasRole('superadmin') && count($organizations) > 0)
-                <select wire:model.live="selectedOrganization" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                    <option value="">All Organizations</option>
-                    @foreach($organizations as $organization)
-                        <option value="{{ $organization->id }}">{{ $organization->name }}</option>
-                    @endforeach
-                </select>
+                <x-searchable-dropdown :options="$organizations->pluck('name','id')" placeholder="All Organizations" wire:model.live="selectedOrganization" />
             @endif
 
             <!-- Clinic Filter -->
             @if(count($clinics) > 1)
-                <select wire:model.live="selectedClinic" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                    <option value="">All Clinics</option>
-                    @foreach($clinics as $clinic)
-                        <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
-                    @endforeach
-                </select>
+                <x-searchable-dropdown :options="$clinics->pluck('name','id')" placeholder="All Clinics" wire:model.live="selectedClinic" />
             @endif
         </div>
     </div>

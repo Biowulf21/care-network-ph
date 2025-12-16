@@ -62,50 +62,28 @@
 
                 <div>
                     <label for="role_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Role *</label>
-                    <select 
-                        id="role_id" 
-                        wire:model="role_id" 
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                        required
-                    >
-                        <option value="">Select a role</option>
-                        @foreach($roles as $role)
-                            <option value="{{ $role->id }}">{{ ucfirst($role->name) }}</option>
-                        @endforeach
-                    </select>
+                    <x-searchable-dropdown :options="$roles->mapWithKeys(fn($r) => [ $r->id => ucfirst($r->name) ])" placeholder="Role" wire:model="role_id" id="role_id" />
                     @error('role_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
                     <label for="organization_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Organization *</label>
-                    <select 
-                        id="organization_id" 
-                        wire:model="organization_id" 
-                        wire:change="updatedOrganizationId"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                        {{ auth()->user()->hasRole('admin') ? 'readonly' : '' }}
-                        required
-                    >
-                        <option value="">Select an organization</option>
-                        @foreach($organizations as $org)
-                            <option value="{{ $org->id }}">{{ $org->name }}</option>
-                        @endforeach
-                    </select>
+                    @if(auth()->user()->hasRole('admin'))
+                        <select id="organization_id" wire:model="organization_id" wire:change="updatedOrganizationId" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" readonly required>
+                            <option value="">Select an organization</option>
+                            @foreach($organizations as $org)
+                                <option value="{{ $org->id }}">{{ $org->name }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <x-searchable-dropdown :options="$organizations->pluck('name','id')" placeholder="Organization" wire:model="organization_id" wire:change="updatedOrganizationId" id="organization_id" />
+                    @endif
                     @error('organization_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="md:col-span-2">
                     <label for="clinic_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Clinic (Optional)</label>
-                    <select 
-                        id="clinic_id" 
-                        wire:model="clinic_id" 
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    >
-                        <option value="">No clinic assignment</option>
-                        @foreach($clinics as $clinic)
-                            <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
-                        @endforeach
-                    </select>
+                    <x-searchable-dropdown :options="$clinics->pluck('name','id')" placeholder="No clinic assignment" wire:model="clinic_id" id="clinic_id" />
                     @error('clinic_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
             </div>

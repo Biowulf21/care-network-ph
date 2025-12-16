@@ -13,13 +13,7 @@
             </div>
             <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input wire:model.debounce.300ms="search" placeholder="Search by patient name..." class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200" />
-                <select wire:model="statusFilter" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200">
-                    <option value="">All Statuses</option>
-                    <option value="scheduled">Scheduled</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
+                <x-searchable-dropdown :options="['' => 'All Statuses','scheduled' => 'Scheduled','confirmed' => 'Confirmed','completed' => 'Completed','cancelled' => 'Cancelled']" placeholder="Status" wire:model="statusFilter" />
                 <input wire:model="dateFilter" type="date" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200" />
             </div>
         </div>

@@ -28,18 +28,22 @@
 
                 <div>
                     <label for="organization_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Organization *</label>
-                    <select 
-                        id="organization_id" 
-                        wire:model="organization_id" 
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                        {{ auth()->user()->hasRole('admin') ? 'readonly' : '' }}
-                        required
-                    >
-                        <option value="">Select an organization</option>
-                        @foreach($organizations as $org)
-                            <option value="{{ $org->id }}">{{ $org->name }}</option>
-                        @endforeach
-                    </select>
+                    @if(auth()->user()->hasRole('admin'))
+                        <select 
+                            id="organization_id" 
+                            wire:model="organization_id" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                            readonly
+                            required
+                        >
+                            <option value="">Select an organization</option>
+                            @foreach($organizations as $org)
+                                <option value="{{ $org->id }}">{{ $org->name }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <x-searchable-dropdown :options="$organizations->pluck('name','id')" placeholder="Organization" wire:model="organization_id" id="organization_id" />
+                    @endif
                     @error('organization_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
             </div>

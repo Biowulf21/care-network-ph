@@ -17,22 +17,20 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="patient_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Patient *</label>
-                    <select wire:model="state.patient_id" id="patient_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
-                        <option value="">Select Patient</option>
-                        @foreach($patients as $patient)
-                            <option value="{{ $patient->id }}">{{ $patient->full_name }} ({{ $patient->patient_id }})</option>
-                        @endforeach
-                    </select>
+                        <x-searchable-dropdown :options="$patients->pluck('full_name','id')" placeholder="Select patient" wire:model="state.patient_id" id="patient_id" />
+                        @error('state.patient_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label for="clinic_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Clinic *</label>
                     @error('state.patient_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
                 <div>
                     <label for="clinic_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Clinic *</label>
-                    <select wire:model="state.clinic_id" id="clinic_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
-                        <option value="">Select Clinic</option>
-                        @foreach($clinics as $clinic)
-                            <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
-                        @endforeach
-                    </select>
+                        <x-searchable-dropdown :options="$clinics->pluck('name','id')" placeholder="Select clinic" wire:model="state.clinic_id" id="clinic_id" />
+                        @error('state.clinic_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label for="encounter_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Encounter Type</label>
                     @error('state.clinic_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
                 <div>
@@ -42,13 +40,10 @@
                 </div>
                 <div>
                     <label for="encounter_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Encounter Type</label>
-                    <select wire:model="state.encounter_type" id="encounter_type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                        <option value="General Consultation">General Consultation</option>
-                        <option value="Follow-up Visit">Follow-up Visit</option>
-                        <option value="Emergency Visit">Emergency Visit</option>
-                        <option value="Routine Check-up">Routine Check-up</option>
-                        <option value="Vaccination">Vaccination</option>
-                    </select>
+                        <x-searchable-dropdown :options="['' => '--','consultation' => 'Consultation','follow_up' => 'Follow Up','telemedicine' => 'Telemedicine']" placeholder="Encounter type" wire:model="state.encounter_type" id="encounter_type" />
+                    </div>
+                    <div>
+                        <label for="disposition" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Disposition</label>
                 </div>
             </div>
         </div>
@@ -136,13 +131,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="disposition" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Disposition</label>
-                        <select wire:model="state.disposition" id="disposition" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                            <option value="">Select disposition</option>
-                            <option value="Sent Home">Sent Home</option>
-                            <option value="Referred to specialist">Referred to specialist</option>
-                            <option value="Follow-up required">Follow-up required</option>
-                            <option value="Admitted for observation">Admitted for observation</option>
-                        </select>
+                                <x-searchable-dropdown :options="['' => '--','referred' => 'Referred','admitted' => 'Admitted','discharged' => 'Discharged']" placeholder="Disposition" wire:model="state.disposition" id="disposition" />
+                            </div>
+                            <div>
+                                <label for="next_appointment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Next Appointment</label>
                     </div>
                     <div>
                         <label for="next_appointment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Next Appointment</label>

@@ -10,3 +10,9 @@ if (typeof window !== "undefined") {
 import "./charts";
 
 // You can add additional imports here (axios, Alpine, Livewire hooks, etc.)
+// Alpine for lightweight interactivity (used by searchable-dropdown)
+import Alpine from "alpinejs";
+if (typeof window !== "undefined") {
+    window.Alpine = Alpine;
+    Alpine.start();
+}

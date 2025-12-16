@@ -18,12 +18,7 @@
             
             <!-- Clinic Filter (for superadmin) -->
             @if(Auth::user()->role === 'superadmin' && count($clinics) > 0)
-                <select wire:model.live="selectedClinic" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                    <option value="">All Clinics</option>
-                    @foreach($clinics as $clinic)
-                        <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
-                    @endforeach
-                </select>
+                <x-searchable-dropdown :options="$clinics->pluck('name','id')" placeholder="All Clinics" wire:model.live="selectedClinic" />
             @endif
             
             <button wire:click="openModal" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
@@ -197,26 +192,13 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="patient_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Patient *</label>
-                            <select wire:model="patient_id" id="patient_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
-                                <option value="">Select Patient</option>
-                                @foreach($patients as $patient)
-                                    <option value="{{ $patient->id }}">{{ $patient->full_name }} ({{ $patient->patient_id }})</option>
-                                @endforeach
-                            </select>
+                            <x-searchable-dropdown :options="$patients->mapWithKeys(fn($p) => [ $p->id => ($p->full_name . ' (' . ($p->patient_id ?? '') . ')') ])" placeholder="Select Patient" wire:model="patient_id" id="patient_id" />
                             @error('patient_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
                             <label for="appointment_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Appointment Type *</label>
-                            <select wire:model="appointment_type" id="appointment_type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                                <option value="General Consultation">General Consultation</option>
-                                <option value="Follow-up Visit">Follow-up Visit</option>
-                                <option value="Emergency Visit">Emergency Visit</option>
-                                <option value="Routine Check-up">Routine Check-up</option>
-                                <option value="Vaccination">Vaccination</option>
-                                <option value="Laboratory">Laboratory</option>
-                                <option value="Specialist Referral">Specialist Referral</option>
-                            </select>
+                            <x-searchable-dropdown :options="['General Consultation'=>'General Consultation','Follow-up Visit'=>'Follow-up Visit','Emergency Visit'=>'Emergency Visit','Routine Check-up'=>'Routine Check-up','Vaccination'=>'Vaccination','Laboratory'=>'Laboratory','Specialist Referral'=>'Specialist Referral']" placeholder="Type" wire:model="appointment_type" id="appointment_type" />
                         </div>
 
                         <div>
@@ -233,25 +215,12 @@
 
                         <div>
                             <label for="duration" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Duration (minutes) *</label>
-                            <select wire:model="duration" id="duration" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                                <option value="15">15 minutes</option>
-                                <option value="30">30 minutes</option>
-                                <option value="45">45 minutes</option>
-                                <option value="60">1 hour</option>
-                                <option value="90">1.5 hours</option>
-                                <option value="120">2 hours</option>
-                            </select>
+                            <x-searchable-dropdown :options="['15'=>'15 minutes','30'=>'30 minutes','45'=>'45 minutes','60'=>'1 hour','90'=>'1.5 hours','120'=>'2 hours']" placeholder="Duration" wire:model="duration" id="duration" />
                         </div>
 
                         <div>
                             <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
-                            <select wire:model="status" id="status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                                <option value="scheduled">Scheduled</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="cancelled">Cancelled</option>
-                                <option value="completed">Completed</option>
-                                <option value="no-show">No Show</option>
-                            </select>
+                            <x-searchable-dropdown :options="['scheduled'=>'Scheduled','confirmed'=>'Confirmed','cancelled'=>'Cancelled','completed'=>'Completed','no-show'=>'No Show']" placeholder="Status" wire:model="status" id="status" />
                         </div>
 
                         <div>
