@@ -13,6 +13,12 @@ import "./charts";
 // Alpine for lightweight interactivity (used by searchable-dropdown)
 import Alpine from "alpinejs";
 if (typeof window !== "undefined") {
-    window.Alpine = Alpine;
-    Alpine.start();
+    // Only initialize Alpine if it's not already present (avoids multiple instances warnings)
+    if (!window.Alpine) {
+        window.Alpine = Alpine;
+        Alpine.start();
+    } else {
+        // ensure we expose the imported Alpine reference if needed
+        window.Alpine = window.Alpine || Alpine;
+    }
 }
